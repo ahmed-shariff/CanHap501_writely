@@ -14,6 +14,7 @@ public class Test_Phidget {
 			public void onSensorChange(VoltageRatioInputSensorChangeEvent e) {
 				System.out.println("SensorValue: " + e.getSensorValue());
 				System.out.println("SensorUnit: " + e.getSensorUnit().symbol);
+				System.out.println("Press enter to finish");
 				System.out.println("----------");
 			}
 		});

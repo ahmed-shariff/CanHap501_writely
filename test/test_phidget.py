@@ -6,6 +6,7 @@ import time
 def onSensorChange(self, sensorValue, sensorUnit):
     print("SensorValue: " + str(sensorValue))
     print("SensorUnit: " + str(sensorUnit.symbol))
+    print("Press enter to finish")
     print("----------")
 
 
