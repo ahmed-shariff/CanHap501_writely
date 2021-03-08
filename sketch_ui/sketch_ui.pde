@@ -18,6 +18,7 @@ import processing.serial.*;
 import static java.util.concurrent.TimeUnit.*;
 import java.util.concurrent.*;
 import controlP5.*;
+import java.util.*;
 /* end library imports *************************************************************************************************/  
 
 
@@ -143,14 +144,18 @@ boolean enableHapticsdUpdateColor = false;
 boolean enableHapticsFlag = true;
 boolean pressureSensordUpdateColor = false;
 boolean pressureSensorFlag = true;
-
+List<PVector> drawnPoints = new LinkedList<PVector>();
+boolean writing = false;
+PVector previous = null;
 /* end writely settings ************************************************************************************************/ 
 
 
 /* setup section *******************************************************************************************************/
 void setup(){
 		/* put setup code here, run once: */
-  
+
+		inputText = inputText.toUpperCase();
+		
 		/* screen size definition */
 		size(1000, 720);
 		
@@ -322,11 +327,34 @@ void pressureSensor(boolean flag)
 
 /* Keyboard inputs *****************************************************************************************************/
 
-void keyPressed() {
-		if (key == 'q') {
-				
+void keyPressed()
+{
+		if (key == ' ') {
+				writing = true;
+		}
+		else if(key == 'n')
+		{
+				if (currentLetterIndex < inputText.length() - 1)
+						currentLetterIndex++;
+
+				drawnPoints.clear();
 		}
 }
+
+void keyReleased()
+{
+		if (key == ' ')
+		{
+				writing = false;
+
+				// Adding this so that we know when to break the lines
+				PVector vec = new PVector(-1, -1);
+				drawnPoints.add(vec);
+				previous = vec;
+		}
+}
+
+
 /* end of keyboard inputs **********************************************************************************************/
 
 /* draw section ********************************************************************************************************/
@@ -335,22 +363,7 @@ void draw(){
 		if(renderingForce == false){
 				background(255); 
 				update_animation(posEE.x + posEE_XOffset, posEE.y + posEE_YOffset);
-				
-				if (enableHapticsdUpdateColor)
-				{
-						if (enableHapticsFlag)
-								enableHapticsToggle.setColorActive(color(0, 255, 0)); //green
-						else
-								enableHapticsToggle.setColorActive(color(255, 0, 0)); //red
-				}
-
-				if (pressureSensordUpdateColor)
-				{
-						if (pressureSensorFlag)
-								pressureSensorToggle.setColorActive(color(0, 255, 0)); //green
-						else
-								pressureSensorToggle.setColorActive(color(255, 0, 0)); //red
-				}
+				updateUI();
 		}
 }
 /* end draw section ****************************************************************************************************/
@@ -486,17 +499,26 @@ void create_pantagraph(){
 
 void update_animation(float xE, float yE){
 		background(255);
-
 		
 		noFill();
 		stroke(color(255, 0, 0));
 		strokeWeight(1.5);
-		rect(270, 120, 700, 520);
-		rect(15, 290, 250, 350);
-		rect(15, 25, 250, 260);
+		rect(270, 120, 700, 520); // haply space
+		rect(15, 290, 250, 350); // control panel
+		rect(15, 25, 250, 260); // instructions
+		PFont f = createFont("Arial", 16);
+		textFont(f, 16);
 		text(instructions, 30, 50, 200, 500);
+
+		// The text to write in
+		textFont(f, 300);
+		fill(color(200));
+		text(String.valueOf(inputText.charAt(currentLetterIndex)), 500, 420);
+
+		// Highlight current text
 		float[] highlightPosition = inputTextLabels[currentLetterIndex].getPosition();
 		circle(highlightPosition[0] + 10, highlightPosition[1] + 14, 30);
+		
 		//push current transformation matrixto stack
     pushMatrix();
 
@@ -514,6 +536,8 @@ void update_animation(float xE, float yE){
 		textFont(f,16);                  // STEP 3 Specify font to be used
 		fill(0);                         // STEP 4 Specify font color 
 
+		updateWritely(xE, yE);
+		
 		// When rendering the target position
 		// x_m = xr*300+500; 
 		// //println(x_m + " " + mouseX);")
@@ -522,6 +546,49 @@ void update_animation(float xE, float yE){
 		// translate(x_m, y_m);
 		// shape(target);
 		// popMatrix();
+}
+
+void updateUI()
+{
+		if (enableHapticsdUpdateColor)
+		{
+				if (enableHapticsFlag)
+						enableHapticsToggle.setColorActive(color(0, 255, 0)); //green
+				else
+						enableHapticsToggle.setColorActive(color(255, 0, 0)); //red
+		}
+
+		if (pressureSensordUpdateColor)
+		{
+				if (pressureSensorFlag)
+						pressureSensorToggle.setColorActive(color(0, 255, 0)); //green
+				else
+						pressureSensorToggle.setColorActive(color(255, 0, 0)); //red
+		}
+}
+
+void updateWritely(float xE, float yE){
+		if (writing)
+		{
+				PVector vec = new PVector(xE + deviceOrigin.x, yE + deviceOrigin.y);
+				if (previous == null || (vec.x != previous.x && vec.y != previous.y))
+				{
+						drawnPoints.add(vec);
+						previous = vec;
+				}
+		}
+
+		PVector p1, p2;
+		for (int i = 1; i < drawnPoints.size(); i++)
+		{
+				p1 = drawnPoints.get(i);
+				p2 = drawnPoints.get(i - 1);
+				if (p1.x != -1 && p2.x != -1)
+				{
+						//println(drawnPoints.get(i-1).x+ "  " + drawnPoints.get(i-1).y+ "  " + p.x+ "  " + p.y);
+						line(p2.x, p2.y, p1.x, p1.y);
+				}
+		}
 }
 
 
