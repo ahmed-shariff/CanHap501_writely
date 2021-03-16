@@ -11,7 +11,7 @@ public class Alphabet{
   private RShape outerRShape, innerRShape;
   private RPoint[] outerPoints, innerPoints;
   private PShape outerPShape, innerPShape;
-  String ALPHABET_IMAGE_PATH = "img/alphabets/";
+  static final String ALPHABET_IMAGE_PATH = "img/alphabets/";
 
  /**
   * Constructor

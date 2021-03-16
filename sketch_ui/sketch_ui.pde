@@ -151,27 +151,14 @@ PVector previous = null;
 
 /* alphabet settings ****************************************************************************************************/
 FWorld world;
-Alphabet alphabet;
+Alphabet alphabet = new Alphabet();
 PShape [] outputPShapes;
 String activeCharacter;
 /* end of alphabet settings ****************************************************************************************************/
 
 /* metrics settings ****************************************************************************************************/
-int newSeconds = 0;
 int seconds = 0;
-float initialPosX =0;
-float initialPosY =0;
-float finalPosX =0;
-float finalPosY=0;
-float speed=0;
-int movementX=0;
-int movementY=0;
-int movement=0;
-int initialSpeed=0; 
-int finalSpeed=0;
-int initialAcceleration=0;
-int finalAcceleration=0;
-int jerk=0;
+Calculator calculator = new Calculator();
 /* metrics end ****************************************************************************************************/
 
 /* setup section *******************************************************************************************************/
@@ -536,12 +523,12 @@ void update_animation(float xE, float yE) {
   background(255);
 
   //Updated code to show letter using Fisica
-  alphabet = new Alphabet();
-  //activeCharacter = String.valueOf(inputText.charAt(currentLetterIndex));
-  //outputPShapes = alphabet.create(activeCharacter.toLowerCase());
-  //shape(outputPShapes[0]);
-  //shape(outputPShapes[1]);
-  //world.draw(this);
+
+  activeCharacter = String.valueOf(inputText.charAt(currentLetterIndex));
+  outputPShapes = alphabet.create(activeCharacter.toLowerCase());
+  shape(outputPShapes[0]);
+  shape(outputPShapes[1]);
+  world.draw(this);
   //Fisica end 
 
 
@@ -578,60 +565,17 @@ void update_animation(float xE, float yE) {
 
   // Not rendering the joints of haply
 
-
   /*User writing metrics details*/
-  //fill(0);
   rect(270, 600, 700, 40);
   text("Pos x: "+round(xE), 290, 625);
   text("Pos y: "+round(yE), 400, 625);
-  
 
-  newSeconds = millis()/1000;
-  
-  //println("seconds"+seconds);
-  //println("newSeconds"+newSeconds);
-  /*if (seconds==0){
-    println("when initial condition"+0000);
-    initialPosX=round(xE);
-    initialPosY=round(yE);
-  }
-  else*/
-  if(seconds!=newSeconds) {
-    if(seconds ==0){
-      initialPosX=round(xE);
-      initialPosY=round(yE);
-    }
-    println("when second condition"+0000);
-    seconds = newSeconds;
-    finalPosX=round(xE);
-    finalPosY=round(yE);
-    
-    //calculation of movement
-    movementX=(int)Math.abs(finalPosX-initialPosX);
-    movementY=(int)Math.abs(finalPosY-initialPosY);
-    finalSpeed=(int)Math.sqrt(movementX*movementX+movementY*movementY);
-    
-    finalAcceleration=finalSpeed-initialSpeed;
-    jerk = finalAcceleration-initialAcceleration;
-    
-    
-    println("movementX"+movementX);
-    println("initialSpeed: "+initialSpeed);
-    println("finalSpeed: "+finalSpeed);
-    println("acceleration"+finalAcceleration);
-    println("jerk: "+jerk);
-    
-    initialPosX=finalPosX;
-    initialPosY=finalPosY;
-    
-    initialSpeed = finalSpeed;
-    
-    initialAcceleration = finalAcceleration;
-  }
+  seconds = millis()/1000;
+  calculator.calculate(seconds, xE, yE);
 
-  text("Curr. speed: "+finalSpeed, 510, 625);
-  text("Acceleration: "+finalAcceleration, 680, 625);
-  text("Jerk: "+jerk, 800, 625);
+  text("Curr. speed: "+calculator.speed(), 510, 625);
+  text("Acceleration: "+calculator.acceleration(), 680, 625);
+  text("Jerk: "+calculator.jerk(), 830, 625);
   /*metrics end*/
 
   // Set transformation matrix o the location of the end effector and draw the end effector graphic
