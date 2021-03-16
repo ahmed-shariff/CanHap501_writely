@@ -19,6 +19,7 @@ import static java.util.concurrent.TimeUnit.*;
 import java.util.concurrent.*;
 import controlP5.*;
 import java.util.*;
+import fisica.*;
 /* end library imports *************************************************************************************************/  
 
 
@@ -138,7 +139,7 @@ String instructions = "Instructions:\nHere w will include the instructons for th
 /* end UI definitions **************************************************************************************************/ 
 
 /* writely settings ****************************************************************************************************/
-String inputText = "alepvumr";
+String inputText = "balepvumr";
 int currentLetterIndex = 0;
 boolean enableHapticsdUpdateColor = false;
 boolean enableHapticsFlag = true;
@@ -149,6 +150,12 @@ boolean writing = false;
 PVector previous = null;
 /* end writely settings ************************************************************************************************/ 
 
+/* alphabet settings ****************************************************************************************************/
+FWorld world;
+Alphabet alphabet;
+PShape [] outputPShapes;
+String activeCharacter;
+/* end of alphabet settings ****************************************************************************************************/
 
 /* setup section *******************************************************************************************************/
 void setup(){
@@ -296,6 +303,16 @@ void setup(){
 		widgetOne.add_encoder(2, CW, -61, 10752, 1);
   
 		widgetOne.device_set_parameters();
+
+
+    /*Fisica start*/
+    Fisica.init(this);
+    //Fisica.setScale(10);
+    RG.init(this);
+    //RG.setPolygonizer(RG.ADAPTATIVE);
+    world = new FWorld();
+   // world.setEdges(this, color(0));  
+    /*end of Fisica*/
     
   
 		/* visual elements setup */
@@ -363,7 +380,13 @@ void draw(){
 		if(renderingForce == false){
 				background(255); 
 				update_animation(posEE.x + posEE_XOffset, posEE.y + posEE_YOffset);
-				updateUI();
+				//updateUI();
+        
+        //Fisica draw shapes
+        //shape(outputPShapes[0]);
+        //shape(outputPShapes[1]);
+        //world.draw(this);
+        //Fisica shape end
 		}
 }
 /* end draw section ****************************************************************************************************/
@@ -499,7 +522,17 @@ void create_pantagraph(){
 
 void update_animation(float xE, float yE){
 		background(255);
-		
+    
+    //Updated code to show letter using Fisica
+    alphabet = new Alphabet();
+    activeCharacter = String.valueOf(inputText.charAt(currentLetterIndex));
+    outputPShapes = alphabet.create(activeCharacter.toLowerCase());
+		shape(outputPShapes[0]);
+    shape(outputPShapes[1]);
+    world.draw(this);
+    //Fisica end 
+    
+    
 		noFill();
 		stroke(color(255, 0, 0));
 		strokeWeight(1.5);
@@ -511,13 +544,14 @@ void update_animation(float xE, float yE){
 		text(instructions, 30, 50, 200, 500);
 
 		// The text to write in
-		textFont(f, 300);
+		/*textFont(f, 300);
 		fill(color(200));
 		text(String.valueOf(inputText.charAt(currentLetterIndex)), 500, 420);
 
 		// Highlight current text
 		float[] highlightPosition = inputTextLabels[currentLetterIndex].getPosition();
 		circle(highlightPosition[0] + 10, highlightPosition[1] + 14, 30);
+    */
 		
 		//push current transformation matrixto stack
     pushMatrix();
@@ -535,9 +569,9 @@ void update_animation(float xE, float yE){
 		
 		textFont(f,16);                  // STEP 3 Specify font to be used
 		fill(0);                         // STEP 4 Specify font color 
-
+    
 		updateWritely(xE, yE);
-		
+
 		// When rendering the target position
 		// x_m = xr*300+500; 
 		// //println(x_m + " " + mouseX);")
@@ -602,8 +636,3 @@ PVector graphics_to_device(PVector graphicsFrame){
 }
 
 /* end helper functions section ****************************************************************************************/
-
-
-
-
- 
