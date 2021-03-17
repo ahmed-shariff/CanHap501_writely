@@ -153,7 +153,6 @@ PVector previous = null;
 /* alphabet settings ****************************************************************************************************/
 FWorld world;
 Alphabet alphabet = new Alphabet();
-PShape [] outputPShapes;
 FPoly alphabetPoly = new FPoly();
 String activeCharacter;
 /* end of alphabet settings ****************************************************************************************************/
