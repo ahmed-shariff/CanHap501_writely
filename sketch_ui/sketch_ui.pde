@@ -79,6 +79,7 @@ PVector           diff                                = new PVector(0, 0);
 /* task space */
 PVector           posEE                               = new PVector(0, 0);
 PVector           fEE                                 = new PVector(0, 0);
+PVector           posEEPrevious                       = new PVector(0, 0);
 float             posEE_YOffset                        = 0.03;
 float             posEE_XOffset                        = 0.05;
 
@@ -138,7 +139,7 @@ String instructions = "Instructions:\nHere w will include the instructons for th
 /* end UI definitions **************************************************************************************************/
 
 /* writely settings ****************************************************************************************************/
-String inputText = "balepvumr";
+String inputText = "abalepvumr";
 int currentLetterIndex = 0;
 boolean enableHapticsdUpdateColor = false;
 boolean enableHapticsFlag = true;
@@ -153,6 +154,7 @@ PVector previous = null;
 FWorld world;
 Alphabet alphabet = new Alphabet();
 PShape [] outputPShapes;
+FPoly alphabetPoly = new FPoly();
 String activeCharacter;
 /* end of alphabet settings ****************************************************************************************************/
 
@@ -161,8 +163,10 @@ int seconds = 0;
 Calculator calculator = new Calculator();
 /* metrics end ****************************************************************************************************/
 
+
 /* setup section *******************************************************************************************************/
 void setup() {
+
   /* put setup code here, run once: */
 
   inputText = inputText.toUpperCase();
@@ -309,16 +313,20 @@ void setup() {
   widgetOne.device_set_parameters();
 
 
-  /*Fisica start*/
+  /*Fisica start**********************************/
   hAPI_Fisica.init(this);
-  //Fisica.setScale(10);
   RG.init(this);
   //RG.setPolygonizer(RG.ADAPTATIVE);
   world = new FWorld();
-  // world.setEdges(this, color(0));  
   /*end of Fisica*/
 
-
+  //Updated code to show letter using Fisica
+  alphabetPoly = alphabet.create(inputText.charAt(currentLetterIndex));
+  alphabetPoly.setFill(255, 0, 0);
+  alphabetPoly.setNoStroke();
+  /*Fisica start**************************8/
+   
+   
   /* visual elements setup */
   background(0);
   deviceOrigin.add(worldPixelWidth/2, 0);
@@ -383,7 +391,7 @@ void draw() {
   if (renderingForce == false) {
     background(255); 
     update_animation(posEE.x + posEE_XOffset, posEE.y + posEE_YOffset);
-    //updateUI();
+    updateUI();
 
     //Fisica draw shapes
     //shape(outputPShapes[0]);
@@ -475,10 +483,7 @@ public void SimulationThread() {
       /* end haptic wall force calculation */
     }
 
-
-
     widgetOne.device_write_torques();
-
 
     renderingForce = false;
     long timetook=System.nanoTime()-timetaken;
@@ -523,12 +528,7 @@ void update_animation(float xE, float yE) {
   background(255);
 
   //Updated code to show letter using Fisica
-
-  activeCharacter = String.valueOf(inputText.charAt(currentLetterIndex));
-  outputPShapes = alphabet.create(activeCharacter.toLowerCase());
-  shape(outputPShapes[0]);
-  shape(outputPShapes[1]);
-  world.draw(this);
+  world.draw();
   //Fisica end 
 
 
