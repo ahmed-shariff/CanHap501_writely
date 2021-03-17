@@ -8,10 +8,13 @@ import geomerative.*;
 
 public class Alphabet{
   
-  private RShape outerRShape, innerRShape;
-  private RPoint[] outerPoints, innerPoints;
-  private PShape outerPShape, innerPShape;
-  static final String ALPHABET_IMAGE_PATH = "img/alphabets/";
+  private RShape outerRShape;
+  private RPoint[] outerPoints;
+  static final String ALPHABET_FONT_PATH = "fonts/";
+  FPoly outerFShape=new FPoly();
+  float positionAlphabetX=0;
+  float positionAlphabetY=0;
+  float alphabetScale=0;
 
  /**
   * Constructor
@@ -28,43 +31,38 @@ public class Alphabet{
    *
    *@author Bibhushan
    */ 
-  public PShape[] create(String letterName){  
-    outerRShape = RG.loadShape(ALPHABET_IMAGE_PATH+"letter_"+letterName+".svg");
-    innerRShape = RG.loadShape(ALPHABET_IMAGE_PATH+"letter_"+letterName+"_contour.svg");
-    outerRShape.scale(1.2);
-    innerRShape.scale(1.2);
+  public FPoly create(char activeChar){  
+    //outerRShape = RG.loadShape(ALPHABET_IMAGE_PATH+"letter_"+letterName+".svg");
+    RFont outerRFont = new RFont(ALPHABET_FONT_PATH+"arialbd.ttf");
+    outerRShape = outerRFont.toShape(activeChar);
+    //innerRShape = RG.loadShape(ALPHABET_IMAGE_PATH+"letter_"+letterName+"_contour.svg");
+    //outerRShape = RG.polygonize(outerRShape);
     
+    if(Character.isUpperCase(activeChar)){
+      //if Capital letter
+      positionAlphabetX = 20;
+      positionAlphabetY = 26;
+      alphabetScale = 0.5;
+    }else{
+      //if Small Letter
+      positionAlphabetX = 25;
+      positionAlphabetY = 26;
+      alphabetScale = 0.5;
+    }
+    
+    outerRShape.scale(alphabetScale);
+   // RG.shape(outerRShape, 300, 800); 
+    //RG.centerIn(outerRShape,g,500);
     //Creating outer shape
     outerPoints = outerRShape.getPoints();
-    innerPoints = innerRShape.getPoints();
-
-    outerPShape = createShape();
-    outerPShape.beginShape();
-    outerPShape.noStroke();
-    outerPShape.fill(0, 0, 255);
-
+    
+    println("length of the array:"+outerPoints.length);
     for (int i = 0; i < outerPoints.length; i++) {
-        //println("(" + outerPoints[i].x + ", " + outerPoints[i].y + ")");
-        outerPShape.vertex(outerPoints[i].x, outerPoints[i].y);
+        println("(" + (int)outerPoints[i].x + ", " + (int)outerPoints[i].y + ")");
+        outerFShape.vertex(positionAlphabetX+outerPoints[i].x, positionAlphabetY+outerPoints[i].y);
     }
-    outerPShape.endShape(CLOSE);
-    
-    //Now creating inner shapes
-    innerPShape = createShape();
-    innerPShape.beginShape();
-    innerPShape.noStroke();
-    innerPShape.fill(0, 0, 0);
-    
-    // Interior part of shape
-    for (int j = 0; j < innerPoints.length; j++) {
-    //for (int j = contourPoints.length-1; j >=0; j--) {
-        //println("Begin Contour !!!");
-        //println("(" + innerPoints[j].x + ", " + innerPoints[j].y + ")");
-        innerPShape.vertex(innerPoints[j].x, innerPoints[j].y);
-    }
-    innerPShape.endShape(CLOSE);
-    PShape shapes[] ={outerPShape, innerPShape};
-    
-    return shapes;
+    //outerFShape.vertex(outerPoints[0].x, outerPoints[0].y);
+    world.add(outerFShape);    
+    return outerFShape;
   }
 }
