@@ -11,7 +11,7 @@ public class Alphabet{
   private RShape outerRShape;
   private RPoint[] outerPoints;
   static final String ALPHABET_FONT_PATH = "fonts/";
-  FPoly outerFShape=new FPoly();
+  FPoly outerFShape;
   float positionAlphabetX=0;
   float positionAlphabetY=0;
   float alphabetScale=0;
@@ -23,6 +23,7 @@ public class Alphabet{
     
   }
   
+  
   /**
    * Returns a PShape for a given letter
    *
@@ -31,7 +32,9 @@ public class Alphabet{
    *
    *@author Bibhushan
    */ 
-  public FPoly create(char activeChar){  
+  public FPoly create(char activeChar){
+    outerFShape=new FPoly();
+    outerRShape = new RShape();
     //outerRShape = RG.loadShape(ALPHABET_IMAGE_PATH+"letter_"+letterName+".svg");
     RFont outerRFont = new RFont(ALPHABET_FONT_PATH+"arialbd.ttf");
     outerRShape = outerRFont.toShape(activeChar);

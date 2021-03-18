@@ -154,7 +154,6 @@ PVector previous = null;
 FWorld world;
 Alphabet alphabet = new Alphabet();
 FPoly alphabetPoly = new FPoly();
-String activeCharacter;
 /* end of alphabet settings ****************************************************************************************************/
 
 /* metrics settings ****************************************************************************************************/
@@ -317,14 +316,11 @@ void setup() {
   RG.init(this);
   //RG.setPolygonizer(RG.ADAPTATIVE);
   world = new FWorld();
-  /*end of Fisica*/
+  /*end of Fisica**********************/
 
-  //Updated code to show letter using Fisica
-  alphabetPoly = alphabet.create(inputText.charAt(currentLetterIndex));
-  alphabetPoly.setFill(255, 0, 0);
-  alphabetPoly.setNoStroke();
-  /*Fisica start**************************8/
-   
+  /*Alphabet creation start**********************************/
+  createAlphabets();
+  /*Alphabet creation start**************************8/
    
   /* visual elements setup */
   background(0);
@@ -359,14 +355,24 @@ void keyPressed()
 {
   if (key == ' ') {
     writing = true;
-  } else if (key == 'n')
-  {
-    if (currentLetterIndex < inputText.length() - 1)
+  } else if (key == 'n') {
+    println("presss"+key);
+    if (currentLetterIndex < inputText.length() - 1) {
       currentLetterIndex++;
-
+      createAlphabets();
+    }
     drawnPoints.clear();
   }
 }
+
+/*void mousePressed() {
+ println("mouse pressed");
+ 
+ if (currentLetterIndex < inputText.length() - 1){
+ currentLetterIndex++;
+ createAlphabets();
+ }
+ }*/
 
 void keyReleased()
 {
@@ -524,12 +530,12 @@ void create_pantagraph() {
 
 
 void update_animation(float xE, float yE) {
+
   background(255);
 
   //Updated code to show letter using Fisica
   world.draw();
   //Fisica end 
-
 
   noFill();
   stroke(color(255, 0, 0));
@@ -537,9 +543,6 @@ void update_animation(float xE, float yE) {
   rect(270, 120, 700, 520); // haply space
   rect(15, 290, 250, 350); // control panel
   rect(15, 25, 250, 260); // instructions
-
-
-
 
   PFont f = createFont("Arial", 16);
   textFont(f, 16);
@@ -549,11 +552,11 @@ void update_animation(float xE, float yE) {
   /*textFont(f, 300);
    		fill(color(200));
    		text(String.valueOf(inputText.charAt(currentLetterIndex)), 500, 420);
-   
-   		// Highlight current text
-   		float[] highlightPosition = inputTextLabels[currentLetterIndex].getPosition();
-   		circle(highlightPosition[0] + 10, highlightPosition[1] + 14, 30);
    */
+  // Highlight current text
+  float[] highlightPosition = inputTextLabels[currentLetterIndex].getPosition();
+  circle(highlightPosition[0] + 10, highlightPosition[1] + 14, 30);
+
 
   //push current transformation matrixto stack
   pushMatrix();
@@ -586,6 +589,8 @@ void update_animation(float xE, float yE) {
   fill(0);                         // STEP 4 Specify font color 
 
   updateWritely(xE, yE);
+
+
 
   // When rendering the target position
   // x_m = xr*300+500; 
@@ -648,6 +653,16 @@ PVector device_to_graphics(PVector deviceFrame) {
 
 PVector graphics_to_device(PVector graphicsFrame) {
   return graphicsFrame.set(-graphicsFrame.x, graphicsFrame.y);
+}
+
+void createAlphabets() {
+  //Updated code to show letter using Fisica
+  //world.removeBody(alphabetPoly);
+  println ("inside create Alphabets!!!");
+  world.remove(alphabetPoly);
+  alphabetPoly = alphabet.create(inputText.charAt(currentLetterIndex));
+  alphabetPoly.setFill(255, 0, 0);
+  alphabetPoly.setNoStroke();
 }
 
 /* end helper functions section ****************************************************************************************/
