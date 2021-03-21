@@ -296,14 +296,14 @@ void setup() {
   /* device setup */
 
   /**  
-   		 * The board declaration needs to be changed depending on which USB serial port the Haply board is connected.
-   		 * In the base example, a connection is setup to the first detected serial device, this parameter can be changed
-   		 * to explicitly state the serial port will look like the following for different OS:
-   		 *
-   		 *      windows:      haplyBoard = new Board(this, "COM10", 0);
-   		 *      linux:        haplyBoard = new Board(this, "/dev/ttyUSB0", 0);
-   		 *      mac:          haplyBoard = new Board(this, "/dev/cu.usbmodem1411", 0);
-   		 */
+       * The board declaration needs to be changed depending on which USB serial port the Haply board is connected.
+       * In the base example, a connection is setup to the first detected serial device, this parameter can be changed
+       * to explicitly state the serial port will look like the following for different OS:
+       *
+       *      windows:      haplyBoard = new Board(this, "COM10", 0);
+       *      linux:        haplyBoard = new Board(this, "/dev/ttyUSB0", 0);
+       *      mac:          haplyBoard = new Board(this, "/dev/cu.usbmodem1411", 0);
+       */
   haplyBoard          = new Board(this, Serial.list()[0], 0);
   widgetOne           = new Device(widgetOneID, haplyBoard);
   pantograph          = new Pantograph();
@@ -622,8 +622,8 @@ void update_animation(float xE, float yE) {
 
   // The text to write in
   /*textFont(f, 300);
-   		fill(color(200));
-   		text(String.valueOf(inputText.charAt(currentLetterIndex)), 500, 420);
+      fill(color(200));
+      text(String.valueOf(inputText.charAt(currentLetterIndex)), 500, 420);
    */
   // Highlight current text
   float[] highlightPosition = inputTextLabels[currentLetterIndex].getPosition();
