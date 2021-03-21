@@ -335,15 +335,15 @@ void setup() {
   s                   = new HVirtualCoupling((0.75)); 
   s.h_avatar.setDensity(4); 
   s.h_avatar.setFill(255,0,0); 
-  s.h_avatar.setSensor(true);
+  s.h_avatar.setSensor(false);
 
   s.init(world, 0, 0); 
   
   /* World conditions setup */
   world.setGravity((0.0), 980); //1000 cm/(s^2)
-  world.setEdges(15, 5.2, 38, 30,color(65)); 
-  world.setEdgesRestitution(.4);
-  world.setEdgesFriction(0.5);
+ // world.setEdges(15, 5.2, 38, 30,color(65)); 
+  //world.setEdgesRestitution(.4);
+  //world.setEdgesFriction(0.5);
   //world.setFill(0,0,0);
   
    
@@ -737,6 +737,11 @@ void createAlphabets() {
   alphabetPoly.setFill(255, 0, 0);
   alphabetPoly.setNoStroke();
   alphabetPoly.setDensity(0);
+  //alphabetPoly.setDensity(4);
+  //confused should setSensor true or false
+  alphabetPoly.setSensor(true);
+  //alphabetPoly.setNoStroke();
+  alphabetPoly.setStatic(true);
 }
 
 /* end helper functions section ****************************************************************************************/
