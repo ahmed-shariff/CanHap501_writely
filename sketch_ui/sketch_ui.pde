@@ -128,6 +128,7 @@ int looptime = 500;
 
 /* graphical elements */
 PShape endEffector;
+FCircle endEffectorFisica;
 PFont f;
 /* end elements definition *********************************************************************************************/
 
@@ -160,6 +161,13 @@ FPoly alphabetPoly = new FPoly();
 int seconds = 0;
 Calculator calculator = new Calculator();
 /* metrics end ****************************************************************************************************/
+
+/* Initialization of virtual tool */
+HVirtualCoupling  s;
+float threshold = 0.02;
+PVector previousVector = new PVector(0, 0);
+/* End of Initialization of virtual tool */
+
 
 
 /* setup section *******************************************************************************************************/
@@ -320,7 +328,24 @@ void setup() {
 
   /*Alphabet creation start**********************************/
   createAlphabets();
-  /*Alphabet creation start**************************8/
+  /*Alphabet creation start***************************/
+  
+  
+  /* Setup the Virtual Coupling Contact Rendering Technique */
+  s                   = new HVirtualCoupling((0.75)); 
+  s.h_avatar.setDensity(4); 
+  s.h_avatar.setFill(255,0,0); 
+  s.h_avatar.setSensor(true);
+
+  s.init(world, 0, 0); 
+  
+  /* World conditions setup */
+  world.setGravity((0.0), 980); //1000 cm/(s^2)
+  world.setEdges(15, 5.2, 38, 30,color(65)); 
+  world.setEdgesRestitution(.4);
+  world.setEdgesFriction(0.5);
+  //world.setFill(0,0,0);
+  
    
   /* visual elements setup */
   background(0);
@@ -365,14 +390,14 @@ void keyPressed()
   }
 }
 
-/*void mousePressed() {
+void mousePressed() {
  println("mouse pressed");
  
  if (currentLetterIndex < inputText.length() - 1){
  currentLetterIndex++;
  createAlphabets();
  }
- }*/
+}
 
 void keyReleased()
 {
@@ -438,12 +463,13 @@ public void SimulationThread() {
     if (haplyBoard.data_available()) {
       /* GET END-EFFECTOR STATE (TASK SPACE) */
       widgetOne.device_read_data();
-
-      noforce = 0;
+      
+      //commented bibhushan
+     // noforce = 0;
       angles.set(widgetOne.get_device_angles());
 
       posEE.set(widgetOne.get_device_position(angles.array()));
-
+      posEE.set(posEE.copy().mult(200)); 
       posEE.set(device_to_graphics(posEE)); 
       x_m = xr*300; 
       y_m = yr*300+350;//mouseY;
@@ -487,8 +513,45 @@ public void SimulationThread() {
       //println(f_y);
       /* end haptic wall force calculation */
     }
-
+    
+    //addition start
+    s.setToolPosition(29.5+(posEE).x, 8+(posEE).y); 
+    s.updateCouplingForce();
+    fEE.set(-s.getVirtualCouplingForceX(), s.getVirtualCouplingForceY());
+    fEE.div(100000);
+    
+    
+    
+    
+    if (s.h_avatar.isTouchingBody(alphabetPoly)) {
+      println("touching");
+      /*PVector xDiff = (posEE.copy()).sub(previousVector);
+      previousVector.set(posEE);
+      if ((xDiff.mag()) < threshold) { 
+        s.h_avatar.setDamping(700);
+        fEE.x = random(-1, 1);
+        fEE.y = random(-1, 1);
+      }*/
+      s.h_avatar.setDamping(950);
+    } else {
+      println(" NOT touching");
+      s.h_avatar.setDamping(4);
+    }
+    
+    
+    //addition end
+    
+    
+    
+    
+    
+    
+    //original code
     widgetOne.device_write_torques();
+    //end original code
+    //addition
+     world.step(1.0f/1000.0f);
+    
 
     renderingForce = false;
     long timetook=System.nanoTime()-timetaken;
@@ -523,9 +586,18 @@ void create_pantagraph() {
   float LAni = pixelsPerMeter * L;
   float rEEAni = pixelsPerMeter * rEE;
 
-  endEffector = createShape(ELLIPSE, deviceOrigin.x, deviceOrigin.y, 2*rEEAni, 2*rEEAni);
-  endEffector.setStroke(color(0));
+  //endEffector = createShape(ELLIPSE, deviceOrigin.x, deviceOrigin.y, 2*rEEAni, 2*rEEAni);
+  //endEffector.setStroke(color(0));
   strokeWeight(5);
+  println("abc");
+  println(rEEAni);
+  println("abc");
+  println(deviceOrigin.x);
+  println(deviceOrigin.y);
+ // endEffectorFisica = new FCircle(rEEAni/5);
+  //endEffectorFisica.setPosition(10,10);
+  //endEffectorFisica.setFill(0,0,0);
+  
 }
 
 
@@ -582,7 +654,8 @@ void update_animation(float xE, float yE) {
 
   // Set transformation matrix o the location of the end effector and draw the end effector graphic
   translate(xE, yE);
-  shape(endEffector);
+  //shape(endEffector);
+  
   popMatrix(); // Reset the transformation matrix
 
   textFont(f, 16);                  // STEP 3 Specify font to be used
@@ -663,6 +736,7 @@ void createAlphabets() {
   alphabetPoly = alphabet.create(inputText.charAt(currentLetterIndex));
   alphabetPoly.setFill(255, 0, 0);
   alphabetPoly.setNoStroke();
+  alphabetPoly.setDensity(0);
 }
 
 /* end helper functions section ****************************************************************************************/
