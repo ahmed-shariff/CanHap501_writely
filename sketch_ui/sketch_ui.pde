@@ -30,6 +30,8 @@ boolean pressureSensorFlag = true;
 List<PVector> drawnPoints = new LinkedList<PVector>();
 boolean writing = false;
 PVector previous = null;
+PVector closestPoint = new PVector(0, 0);
+int redC = color(255, 0, 0);
 /* end writely settings ************************************************************************************************/
 
 /* alphabet settings ****************************************************************************************************/
@@ -246,7 +248,7 @@ void drawLoop(){
 void PhysicsSimulations()
 {
 	if (s.h_avatar.isTouchingBody(alphabetPoly)) {
-    println("touching");
+    //println("touching");
     /*PVector xDiff = (posEE.copy()).sub(previousVector);
     previousVector.set(posEE);
     if ((xDiff.mag()) < threshold) { 
@@ -256,9 +258,9 @@ void PhysicsSimulations()
     }*/
     s.h_avatar.setDamping(950);
   } else {
-    println(" NOT touching");
+    //println(" NOT touching");
     s.h_avatar.setDamping(4);
-  }  
+  }
 }
 
 void exit() {
@@ -295,7 +297,13 @@ void update_animation(float xE, float yE) {
   float[] highlightPosition = inputTextLabels[currentLetterIndex].getPosition();
   circle(highlightPosition[0] + 10, highlightPosition[1] + 14, 30);
 
+  closestPoint = calcualteClosestPoint(xE, yE);
 
+  if (closestPoint.x != 0 || closestPoint.y != 0)
+  {
+      circle(closestPoint.x, closestPoint.y, 40);
+  }
+  
   //push current transformation matrixto stack
   // pushMatrix();
 
@@ -390,4 +398,93 @@ void createAlphabets() {
   alphabetPoly.setSensor(true);
   //alphabetPoly.setNoStroke();
   alphabetPoly.setStatic(true);
+}
+
+
+PVector calcualteClosestPoint(float xE, float yE)
+{
+    ///270, 120, 700, 520;
+    loadPixels();
+    int x = round(xE * pixelsPerCentimeter);
+    int y = round(yE * pixelsPerCentimeter);
+    int rgb = pixels[width * y + x];
+    // int r = (rgb >> 16) & 0xFF;
+    // int g = (rgb >>  8) & 0xFF;
+    // int b = (rgb >>  0) & 0xFF;
+    int outX, outY, leftX, rightX, upY, downY, temp = 0;
+
+    leftX = 0;
+    rightX = 0;
+    upY = 0;
+    downY = 0;
+    outX = x;
+    outY = y;
+
+    boolean found = false;
+    
+    for (int i = 10; i < 50; i++)
+    {
+        temp = i + x;
+        if (temp < 275 && temp > 695)
+            break;
+        
+        if(pixels[width * y + temp] != pixels[width * y + temp + 1])
+        {
+            rightX = i;
+            outX = temp;
+            found = true;
+            break;
+        }
+    }
+    
+    for (int i = 10; i < 50; i++)
+    {
+        temp = x - i;
+        if (temp < 275 && temp > 695)
+            break;
+        
+        if(pixels[width * y + temp] != pixels[width * y + temp - 1])
+        {
+             // if an x was not detected in the earler loop or the detected point is farther away
+            if (rightX == 0 || i < rightX)
+                outX = temp;
+            found = true;
+            break;
+        }
+    }
+
+    for (int i = 10; i < 50; i++)
+    {
+        temp = y + i;
+        if (temp < 125 && temp > 515)
+            break;
+        
+        if(pixels[width * temp + x] != pixels[width * (temp + 1) + x])
+        {
+            downY = i;
+            outY = temp;
+            found = true;
+            break;
+        }
+    }
+
+    for (int i = 10; i < 80; i++)
+    {
+        temp = y - i;
+        if (temp < 125 && temp > 515)
+            break;
+        
+        if(pixels[width * temp + x] != pixels[width * (temp - 1) + x])
+        {
+            if(downY == 0 || downY > i)
+                outY = temp;
+            found = true;
+            break;
+        }
+    }
+
+    if (found)
+        return new PVector(outX, outY);
+    
+    return new PVector(0, 0);
 }
