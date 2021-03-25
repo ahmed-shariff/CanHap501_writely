@@ -66,58 +66,76 @@ public class Alphabet {
 		return false;
 	}
 
-	public PVector closestPoint(float x, float y)
+	public ClosestPointResult closestPoint(float x, float y)
 	{
 		PVector p = new PVector(x, y);
 		
 		float a, b, c, d, currentA, currentB, currentC, denomSquared, currentDenomSquared, currendD = 10000;
 		a = b = c = currentA = currentB = currentC = currentDenomSquared = 0;
 		Pair pair;
-		PVector ab, ab_n, ac;
+		PVector ab, ab_n, ac, ac_p, cVector=null, currentCVector = null, currentPerpendicularVector=null;
 		FLine closestLine = polys.get(0);
-		println("Start");
+
 		for (int i = 0; i < polys.size(); i++)
 		{
-				polys.get(i).setStrokeColor(color(255, 0, 0));
+			//	polys.get(i).setStrokeColor(color(255, 0, 0));
 			pair = lineSegments.get(i);
-			// ab = pair.p2.sub(pair.p1); //  vector from p1 to p2
-			// ab_n = new PVector(-ab.y, ab.x); // perpendicular to ab
-			// ac = p.sub(pair.p1); // vector from p1 to p
-			// d = abs(ac.dot(ab_n) / ab_n.mag()) ; // absolute value of scalar projection of ac on ab_n, aka distance
 
+			// method 1 (vector arithmatic)
+			// ab = PVector.sub(pair.p2, pair.p1); //  vector from p1 to p2
+			// ab_n = new PVector(-ab.y, ab.x); // perpendicular to ab
+			// ac_p = PVector.sub(p, pair.p1); // vector from p1 to p
+			// d = abs(ac_p.dot(ab_n) / ab_n.mag()) ; // absolute value of scalar projection of ac on ab_n, aka distance
+
+			// method 2 geomatry
+			// Get the closest point to p on the line
+			// a, b, c being the coefficient of the line
 			a = pair.p1.y - pair.p2.y;
 			b = pair.p2.x - pair.p1.x;
 			c = pair.p1.x * pair.p2.y - pair.p2.x * pair.p1.y;
 			denomSquared = pow(a, 2) + pow(b, 2);
-			d = abs(a * p.x + b * p.y + c) / sqrt(denomSquared);
+			d = abs(a * p.x + b * p.y + c) / sqrt(denomSquared); // orthogonal distance from the line
 			if (d < currendD)
 			{
-				closestLine = polys.get(i);
-				currentA = a;
-				currentB = b;
-				currentC = c;
-				currendD = d;
-				currentDenomSquared = denomSquared;
+				cVector = new PVector((b * (b * p.x - a * p.y) - a * c)/denomSquared, (a * ( -b * p.x + a * p.y ) - b* c) / denomSquared);
+				// ac = ab.mult(d);
+				ac = PVector.sub(cVector, pair.p1);
+				ab = PVector.sub(pair.p2, pair.p1); //  vector from p1 to p2
+				if (ac.dot(ab) > 0 && ac.mag() <= ab.mag()) // checking if the point in on the line
+				{
+					closestLine = polys.get(i);
+					currentCVector = cVector;
+					currentPerpendicularVector = PVector.sub(p, cVector); // the perpendicular vector from the line to p
+					// currentCVector = PVector.add(pair.p1, ac);
+					currendD = d;
+				}
 			}
-			println(currendD + "   -- " + d);
 		}
-		closestLine.setStrokeColor(color(0, 0, 0));
-		println(">>>>  " + a + "  " + b + "  " + c);
-		a = currentA;
-		b = currentB;
-		c = currentC;
-		return new PVector((b * (b * p.x - a * p.y) - a * c)/currentDenomSquared, (a * ( -b * p.x + a * p.y ) - b* c) / currentDenomSquared);
+		// closestLine.setStrokeColor(color(0, 0, 0));
+		return new ClosestPointResult(currentCVector, currentPerpendicularVector);
 	}
 
 	private class Pair
 	{
-		public PVector p1;
-		public PVector p2;
-			
-		public Pair(PVector p1, PVector p2)
-		{
-			this.p1 = p1;
-			this.p2 = p2;
-		}
+			public PVector p1;
+			public PVector p2;
+		
+			public Pair(PVector p1, PVector p2)
+			{
+					this.p1 = p1;
+					this.p2 = p2;
+			}
 	}
 }
+
+public class ClosestPointResult 
+{
+		public PVector c;
+		public PVector perpendicularVector;
+		
+		public ClosestPointResult (PVector c, PVector perpendicularVector) {
+				this.c = c;
+				this.perpendicularVector = perpendicularVector;
+		}
+}
+

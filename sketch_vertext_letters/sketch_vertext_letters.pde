@@ -30,7 +30,7 @@ boolean pressureSensorFlag = true;
 List<PVector> drawnPoints = new LinkedList<PVector>();
 boolean writing = false;
 PVector previous = null;
-PVector closestPoint = new PVector(0, 0);
+ClosestPointResult closestPoint = null;
 int redC = color(255, 0, 0);
 /* end writely settings ************************************************************************************************/
 
@@ -299,10 +299,10 @@ void update_animation(float xE, float yE) {
   // closestPoint = calcualteClosestPoint(xE, yE);
 	closestPoint = alphabetPoly.closestPoint(xE * pixelsPerCentimeter, yE * pixelsPerCentimeter);
 
-  if (closestPoint.x != 0 || closestPoint.y != 0)
+  if (closestPoint.c != null && (closestPoint.c.x != 0 || closestPoint.c.y != 0))
   {
-			  stroke(color(255, 255, 0));
-      circle(closestPoint.x, closestPoint.y, 40);
+			stroke(color(255, 255, 0));
+			circle(closestPoint.c.x, closestPoint.c.y, 40);
   }
   
   //push current transformation matrixto stack
