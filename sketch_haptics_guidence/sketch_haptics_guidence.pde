@@ -31,7 +31,7 @@ boolean pressureSensorFlag = true;
 List<PVector> drawnPoints = new LinkedList<PVector>();
 boolean writing = false;
 PVector previous = null;
-ClosestPointResult closestPoint = null;
+ClosestPointResult closestPoint = new ClosestPointResult(null, null);
 int redC = color(255, 0, 0);
 /* end writely settings ************************************************************************************************/
 
@@ -173,6 +173,7 @@ void setup(){
   }
 		
 	PhysicsSetup();
+  s.h_avatar.setSize(1f);
 }
 
 void PhysicsDefinitions()
@@ -210,6 +211,8 @@ void keyPressed()
       createAlphabets();
     }
     drawnPoints.clear();
+  } else if (key == 'r') {
+    drawnPoints.clear();
   }
 }
 
@@ -238,7 +241,7 @@ void keyReleased()
 
 /* draw section ********************************************************************************************************/
 void drawLoop(){
-	update_animation(s.getToolPositionX(), s.getToolPositionY());
+	update_animation(s.getAvatarPositionX(), s.getAvatarPositionY());
 	updateUI();
 }
 /* end draw section ****************************************************************************************************/
@@ -249,6 +252,18 @@ void drawLoop(){
 void PhysicsSimulations()
 {
 	if (alphabetPoly.isTouchedByBody(s.h_avatar)) {
+    // closestPoint = calcualteClosestPoint(xE, yE);
+    float screenXE = s.getAvatarPositionX() * pixelsPerCentimeter;
+    float screenYE = s.getAvatarPositionY() * pixelsPerCentimeter;
+    closestPoint = alphabetPoly.closestPoint(screenXE, screenYE);
+
+    if (ramp && rampStartTime == 0)
+        rampStartTime = millis();
+    
+    if (closestPoint.useThis)
+    {
+      applyFullGuidence(perpendicularRampedForced(closestPoint));
+    }
     // println("touching");
     /*PVector xDiff = (posEE.copy()).sub(previousVector);
     previousVector.set(posEE);
@@ -257,11 +272,41 @@ void PhysicsSimulations()
       fEE.x = random(-1, 1);
       fEE.y = random(-1, 1);
     }*/
-    s.h_avatar.setDamping(950);
   } else {
 		//println(" NOT touching");
-    s.h_avatar.setDamping(4);
+    s.h_avatar.setDamping(0);
+    ramp = true;
+    rampStartTime = 0;
   }
+}
+
+float currentRampTime = 0;
+float rampStartTime = 0;
+boolean ramp = false;
+
+
+PVector perpendicularRampedForced(ClosestPointResult c)
+{
+  PVector force = c.perpendicularVector.copy().limit(10f).mult(0.5f);
+  if (ramp)
+  {
+    PVector initialForce = force.copy();
+    currentRampTime = millis() - rampStartTime;
+    force = (force.mult(currentRampTime * 0.003));
+    if (force.mag() >= initialForce.mag()){//} || currentRampTime > 1.5f){
+      ramp = false;
+      rampStartTime = 0;
+    }
+  }
+  return force;
+}
+
+void applyFullGuidence(PVector force)
+{
+  // y needs to be negated when going from screen to world
+  fEE.add(force.x, -force.y);
+  fEE.limit(3.5);
+  s.h_avatar.setDamping(600);
 }
 
 void exit() {
@@ -298,12 +343,7 @@ void update_animation(float xE, float yE) {
   float[] highlightPosition = inputTextLabels[currentLetterIndex].getPosition();
   circle(highlightPosition[0] + 10, highlightPosition[1] + 14, 30);
 
-  // closestPoint = calcualteClosestPoint(xE, yE);
-  float screenXE = xE * pixelsPerCentimeter;
-  float screenYE = yE * pixelsPerCentimeter;
-	closestPoint = alphabetPoly.closestPoint(screenXE, screenYE);
-
-  if (closestPoint.c != null && (closestPoint.c.x != 0 || closestPoint.c.y != 0))
+  if (closestPoint.useThis)
   {
 			stroke(color(100, 100, 0));
       strokeWeight(2);
@@ -312,7 +352,10 @@ void update_animation(float xE, float yE) {
 
   if (showFEE)
   {
-    line(screenXE, screenYE, screenXE + fEE.x * 2 * pixelsPerCentimeter, screenYE + fEE.y * 2 * pixelsPerCentimeter);
+    float x = 350;
+    float y = 220;
+    circle(x, y, 150);
+    line(x, y, x + fEE.x * pixelsPerCentimeter, y - fEE.y * pixelsPerCentimeter);
   }
 
   stroke(baseColor);
@@ -340,7 +383,7 @@ void update_animation(float xE, float yE) {
   textFont(f, 16);                  // STEP 3 Specify font to be used
   fill(0);                         // STEP 4 Specify font color 
 
-  updateWritely(xE, yE);
+  updateWritely(xE * pixelsPerCentimeter, yE * pixelsPerCentimeter);
 
   // When rendering the target position
   // x_m = xr*300+500; 
@@ -372,6 +415,8 @@ void updateUI()
 }
 
 void updateWritely(float xE, float yE) {
+  stroke(0, 0, 0);
+
   if (writing)
   {
     PVector vec = new PVector(xE, yE);

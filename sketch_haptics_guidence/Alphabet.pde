@@ -30,7 +30,7 @@ public class Alphabet {
 			/* } */
 			//outerFShape.vertex(outerPoints[0].x, outerPoints[0].y);
 			outerFShape.setFill(255, 0, 0);
-			outerFShape.setStrokeColor(color(255, 0, 0));
+			outerFShape.setStrokeColor(color(255, 0, 0, 100));
 			outerFShape.setStrokeWeight(30.0f);
 			// outerFShape.setNoStroke();
 			outerFShape.setDensity(0);
@@ -132,10 +132,12 @@ public class ClosestPointResult
 {
 		public PVector c;
 		public PVector perpendicularVector;
+    public boolean useThis;
 		
 		public ClosestPointResult (PVector c, PVector perpendicularVector) {
 				this.c = c;
 				this.perpendicularVector = perpendicularVector;
+        this.useThis = (c != null && (c.x != 0 || c.y != 0));
 		}
 }
 
