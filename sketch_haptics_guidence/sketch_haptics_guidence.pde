@@ -136,13 +136,15 @@ void setup(){
     .setItemsPerRow(2)
     .setSpacingColumn(70)
     .addItem("Letters", 1)
-    .addItem("Word Sentence", 2)
+    //.addItem("Word Sentence", 2)
     ;
 
   for (Toggle t : learningExperienceRadio.getItems())
   {
     t.getCaptionLabel().setFont(createFont("Georgia", 10));
   }
+
+  learningExperienceRadio.getItem(0).setValue(true);
 
   // Haptic experience
   cp5.addTextlabel("hapticExperienceLabel")
@@ -171,7 +173,12 @@ void setup(){
   {
     t.getCaptionLabel().setFont(createFont("Georgia", 9));
   }
-		
+  
+
+  hapticExperienceRadio.getItem(1).setValue(true);
+  hapticExperienceRadio.getItem(0).hide();
+  hapticExperienceRadio.getItem(3).hide();
+  
 	PhysicsSetup();
   s.h_avatar.setSize(1f);
 }
@@ -216,14 +223,14 @@ void keyPressed()
   }
 }
 
-void mousePressed() {
- println("mouse pressed");
+// void mousePressed() {
+//  println("mouse pressed");
  
- if (currentLetterIndex < inputText.length() - 1){
- currentLetterIndex++;
- createAlphabets();
- }
-}
+//  if (currentLetterIndex < inputText.length() - 1){
+//  currentLetterIndex++;
+//  createAlphabets();
+//  }
+// }
 
 void keyReleased()
 {
@@ -251,6 +258,12 @@ void drawLoop(){
 
 void PhysicsSimulations()
 {
+  if (!enableHapticsToggle.getState())
+  {
+      println("asdfasdf");
+    return;
+  }
+
 	if (alphabetPoly.isTouchedByBody(s.h_avatar)) {
     // closestPoint = calcualteClosestPoint(xE, yE);
     float screenXE = s.getAvatarPositionX() * pixelsPerCentimeter;
@@ -259,10 +272,20 @@ void PhysicsSimulations()
 
     if (ramp && rampStartTime == 0)
         rampStartTime = millis();
+
     
     if (closestPoint.useThis)
     {
-      applyFullGuidence(perpendicularRampedForced(closestPoint));
+    //         .addItem("Partial", 1)
+    // .addItem("Full", 2)
+    // .addItem("Anti-guidence", 3)
+    // .addItem("Disturbance", 4)
+
+      if (hapticExperienceRadio.getState(1)){
+        applyFullGuidence(perpendicularRampedForced(closestPoint));
+      }
+      else if (hapticExperienceRadio.getState(2))
+        applyAntiGuidence(perpendicularRampedForced(closestPoint));
     }
     // println("touching");
     /*PVector xDiff = (posEE.copy()).sub(previousVector);
@@ -307,6 +330,16 @@ void applyFullGuidence(PVector force)
   fEE.add(force.x, -force.y);
   fEE.limit(3.5);
   s.h_avatar.setDamping(600);
+}
+
+void applyAntiGuidence(PVector force)
+{
+  PVector oppositeVector = force.copy().normalize().mult(2.5);
+  force = oppositeVector.sub(force);
+  // y needs to be negated when going from screen to world
+  fEE.add(force.x, - force.y);
+  fEE.limit(2.5);
+  s.h_avatar.setDamping(600);    
 }
 
 void exit() {
