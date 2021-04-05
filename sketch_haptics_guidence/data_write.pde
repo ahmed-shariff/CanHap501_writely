@@ -18,7 +18,7 @@ void writeFile(String message){
   String[] lines = null;
   // file name must contain the entire directory - this goes into a folder named for example <pid_0> for participant 0
   // file name is then the studyDate.csv, for example <11-13-24.csv>
-  String file_name = RESULT_PATH + "pid_" + currentStudy.getP_id() + "-hc_" + currentStudy.getHaptic_condition() + "/"+studyDate + ".csv"; // file names look like for example 'pid_1/condition_guidance.csv'
+  String file_name = RESULT_PATH + "pid_" + currentStudy.getP_id() + "_hc_" + currentStudy.getHaptic_condition() + "/"+studyDate + ".csv"; // file names look like for example 'pid_1/condition_guidance.csv'
   File f = new File(dataPath(file_name));
   // if file exists grab all previous lines
   if (f.exists()) {
