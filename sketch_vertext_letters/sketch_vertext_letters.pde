@@ -21,7 +21,7 @@ String instructions = "Instructions:\nHere w will include the instructons for th
 /* end UI definitions **************************************************************************************************/
 
 /* writely settings ****************************************************************************************************/
-String inputText = "abalepvumr";
+String inputText = "lll";
 int currentLetterIndex = 0;
 boolean enableHapticsdUpdateColor = false;
 boolean enableHapticsFlag = true;
@@ -30,13 +30,13 @@ boolean pressureSensorFlag = true;
 List<PVector> drawnPoints = new LinkedList<PVector>();
 boolean writing = false;
 PVector previous = null;
-PVector closestPoint = new PVector(0, 0);
+ClosestPointResult closestPoint = null;
 int redC = color(255, 0, 0);
 /* end writely settings ************************************************************************************************/
 
 /* alphabet settings ****************************************************************************************************/
-Alphabet alphabet = new Alphabet();
-FPoly alphabetPoly = new FPoly();
+AlphabetCreator alphabet = new AlphabetCreator();
+Alphabet alphabetPoly;
 /* end of alphabet settings ****************************************************************************************************/
 
 /* metrics settings ****************************************************************************************************/
@@ -176,7 +176,7 @@ void setup(){
 
 void PhysicsDefinitions()
 {
-	RG.init(this);
+	//RG.init(this);
 	/*Alphabet creation start**********************************/
   createAlphabets();
   /*Alphabet creation start***************************/
@@ -247,8 +247,8 @@ void drawLoop(){
 
 void PhysicsSimulations()
 {
-	if (s.h_avatar.isTouchingBody(alphabetPoly)) {
-    //println("touching");
+	if (alphabetPoly.isTouchedByBody(s.h_avatar)) {
+		println("touching");
     /*PVector xDiff = (posEE.copy()).sub(previousVector);
     previousVector.set(posEE);
     if ((xDiff.mag()) < threshold) { 
@@ -258,7 +258,7 @@ void PhysicsSimulations()
     }*/
     s.h_avatar.setDamping(950);
   } else {
-    //println(" NOT touching");
+		//println(" NOT touching");
     s.h_avatar.setDamping(4);
   }
 }
@@ -270,7 +270,6 @@ void exit() {
 
 
 void update_animation(float xE, float yE) {
-
   background(255);
 
   //Updated code to show letter using Fisica
@@ -297,11 +296,13 @@ void update_animation(float xE, float yE) {
   float[] highlightPosition = inputTextLabels[currentLetterIndex].getPosition();
   circle(highlightPosition[0] + 10, highlightPosition[1] + 14, 30);
 
-  closestPoint = calcualteClosestPoint(xE, yE);
+  // closestPoint = calcualteClosestPoint(xE, yE);
+	closestPoint = alphabetPoly.closestPoint(xE * pixelsPerCentimeter, yE * pixelsPerCentimeter);
 
-  if (closestPoint.x != 0 || closestPoint.y != 0)
+  if (closestPoint.c != null && (closestPoint.c.x != 0 || closestPoint.c.y != 0))
   {
-      circle(closestPoint.x, closestPoint.y, 40);
+			stroke(color(255, 255, 0));
+			circle(closestPoint.c.x, closestPoint.c.y, 40);
   }
   
   //push current transformation matrixto stack
@@ -388,16 +389,10 @@ void createAlphabets() {
   //Updated code to show letter using Fisica
   //world.removeBody(alphabetPoly);
   println ("inside create Alphabets!!!");
-  world.remove(alphabetPoly);
+	if (alphabetPoly != null)
+		alphabetPoly.removeFromWorld();
   alphabetPoly = alphabet.create(inputText.charAt(currentLetterIndex));
-  alphabetPoly.setFill(255, 0, 0);
-  alphabetPoly.setNoStroke();
-  alphabetPoly.setDensity(0);
-  //alphabetPoly.setDensity(4);
-  //confused should setSensor true or false
-  alphabetPoly.setSensor(true);
-  //alphabetPoly.setNoStroke();
-  alphabetPoly.setStatic(true);
+  
 }
 
 
