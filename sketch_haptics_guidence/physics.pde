@@ -86,7 +86,7 @@ void PhysicsSetup(){
 		 *      linux:        haplyBoard = new Board(this, "/dev/ttyUSB0", 0);
 		 *      mac:          haplyBoard = new Board(this, "/dev/cu.usbmodem1411", 0);
 		 */
-		haplyBoard          = new Board(this, Serial.list()[0], 0);
+		haplyBoard          = new Board(this, "/dev/cu.usbmodem143201", 0);
 		widgetOne           = new Device(widgetOneID, haplyBoard);
 		pantograph          = new Pantograph();
   

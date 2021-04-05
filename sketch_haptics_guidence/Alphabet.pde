@@ -140,4 +140,3 @@ public class ClosestPointResult
         this.useThis = (c != null && (c.x != 0 || c.y != 0));
 		}
 }
-

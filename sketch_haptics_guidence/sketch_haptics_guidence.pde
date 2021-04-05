@@ -5,7 +5,6 @@ import java.util.*;
 float             posEE_YOffset                        = 3;
 float             posEE_XOffset                        = 30;
 
-
 ControlP5 cp5;
 
 Knob PKnob, IKnob, DKnob;
@@ -17,13 +16,15 @@ boolean EnablePath = false;
 Textlabel[] inputTextLabels;
 Toggle enableHapticsToggle, pressureSensorToggle;
 RadioButton learningExperienceRadio, hapticExperienceRadio;
-String instructions = "Instructions:\nHere w will include the instructons for the user to use the GUI.";
+String instructions = "Instructions:\nPress and hold the spacebar to write a stroke. You can repeatedly do this for as many strokes as you need to write the character. When done the letter, press the right arrow to move to the next letter.";
 boolean showFEE = true;
 /* end UI definitions **************************************************************************************************/
 
 /* writely settings ****************************************************************************************************/
 String inputText = "lll";
 int currentLetterIndex = 0;
+String currentLetter = "";
+boolean newLetter = true; // set to true when no stroke has been made and false when a stroke has been made (ultimately used to set start trial time)
 boolean enableHapticsdUpdateColor = false;
 boolean enableHapticsFlag = true;
 boolean pressureSensordUpdateColor = false;
@@ -34,6 +35,21 @@ PVector previous = null;
 ClosestPointResult closestPoint = new ClosestPointResult(null, null);
 int redC = color(255, 0, 0);
 /* end writely settings ************************************************************************************************/
+
+/* variables to store ****************************************************************************************************/
+float currXPos = 0.0;
+float currYPos = 0.0;
+float currXForce = 0.0;
+float currYForce = 0.0;
+float currSpeed = 0.0;
+float currAccel = 0.0;
+float currJerk = 0.0;
+long startTrialTime = 0;
+long currTrialTime = 0;
+/* end variables to store ****************************************************************************************************/
+
+/* study generator ****************************************************************************************************/
+Study currentStudy = new Study();
 
 /* alphabet settings ****************************************************************************************************/
 AlphabetCreator alphabet = new AlphabetCreator();
@@ -51,15 +67,15 @@ PVector previousVector = new PVector(0, 0);
 /* End of Initialization of virtual tool */
 
 
-/* end definitions *****************************************************************************************************/ 
+/* end definitions *****************************************************************************************************/
 
 
 /* setup section *******************************************************************************************************/
-void setup(){
+void setup() {
   /* screen size definition */
   size(1000, 700);
 
-	/* GUI setup */
+  /* GUI setup */
   smooth();
   cp5 = new ControlP5(this);
 
@@ -173,20 +189,20 @@ void setup(){
   {
     t.getCaptionLabel().setFont(createFont("Georgia", 9));
   }
-  
+
 
   hapticExperienceRadio.getItem(1).setValue(true);
   hapticExperienceRadio.getItem(0).hide();
   hapticExperienceRadio.getItem(3).hide();
-  
-	PhysicsSetup();
+
+  PhysicsSetup();
   s.h_avatar.setSize(1f);
 }
 
 void PhysicsDefinitions()
 {
-	//RG.init(this);
-	/*Alphabet creation start**********************************/
+  //RG.init(this);
+  /*Alphabet creation start**********************************/
   createAlphabets();
   /*Alphabet creation start***************************/
 }
@@ -211,21 +227,49 @@ void keyPressed()
 {
   if (key == ' ') {
     writing = true;
-  } else if (key == 'n') {
-    println("presss"+key);
+    if (newLetter) {
+      startTrialTime = System.currentTimeMillis();
+      newLetter = false;
+    }
+  } // end of space to write/draw points
+  
+  // else if they are done writing the letter then move to the next letter in the study
+  else if (key == '\n') {
+    // iterate trial number
+    currentStudy.nextTrial();
+    // if we are done the study
+    if (currentStudy.isDone()) {
+      // do something to signal the end
+      drawnPoints.clear();
+      doneStudy();
+    }
+    // else more trials to do
+    else {
+      // get next letter
+      currentLetter = currentStudy.getCurrTrial();
+      println("Trial: "+currentStudy.getCurrPos()+"/"+currentStudy.numberOfTrials()+" -- Next Letter: "+currentLetter);
+      //  ***************************************************** WE NEED TO SHOW THE NEXT LETTER HERE WHEN THEY ARE ALL CREATED *****************************************************
+      drawnPoints.clear();
+      newLetter = true;
+    }
+    
+    // this is still here for current version of the code. will probably remove later
     if (currentLetterIndex < inputText.length() - 1) {
       currentLetterIndex++;
       createAlphabets();
     }
-    drawnPoints.clear();
-  } else if (key == 'r') {
+    
+  } // end of next letter on enter
+  
+  // used purely to clear drawn points
+  else if (key == 'r') {
     drawnPoints.clear();
   }
 }
 
 // void mousePressed() {
 //  println("mouse pressed");
- 
+
 //  if (currentLetterIndex < inputText.length() - 1){
 //  currentLetterIndex++;
 //  createAlphabets();
@@ -247,9 +291,9 @@ void keyReleased()
 /* end of keyboard inputs **********************************************************************************************/
 
 /* draw section ********************************************************************************************************/
-void drawLoop(){
-	update_animation(s.getAvatarPositionX(), s.getAvatarPositionY());
-	updateUI();
+void drawLoop() {
+  update_animation(s.getAvatarPositionX(), s.getAvatarPositionY());
+  updateUI();
 }
 /* end draw section ****************************************************************************************************/
 
@@ -260,43 +304,42 @@ void PhysicsSimulations()
 {
   if (!enableHapticsToggle.getState())
   {
-      println("asdfasdf");
+    println("asdfasdf");
     return;
   }
 
-	if (alphabetPoly.isTouchedByBody(s.h_avatar)) {
+  if (alphabetPoly.isTouchedByBody(s.h_avatar)) {
     // closestPoint = calcualteClosestPoint(xE, yE);
     float screenXE = s.getAvatarPositionX() * pixelsPerCentimeter;
     float screenYE = s.getAvatarPositionY() * pixelsPerCentimeter;
     closestPoint = alphabetPoly.closestPoint(screenXE, screenYE);
 
     if (ramp && rampStartTime == 0)
-        rampStartTime = millis();
+      rampStartTime = millis();
 
-    
+
     if (closestPoint.useThis)
     {
-    //         .addItem("Partial", 1)
-    // .addItem("Full", 2)
-    // .addItem("Anti-guidence", 3)
-    // .addItem("Disturbance", 4)
+      //         .addItem("Partial", 1)
+      // .addItem("Full", 2)
+      // .addItem("Anti-guidence", 3)
+      // .addItem("Disturbance", 4)
 
-      if (hapticExperienceRadio.getState(1)){
+      if (hapticExperienceRadio.getState(1)) {
         applyFullGuidence(perpendicularRampedForced(closestPoint));
-      }
-      else if (hapticExperienceRadio.getState(2))
+      } else if (hapticExperienceRadio.getState(2))
         applyAntiGuidence(perpendicularRampedForced(closestPoint));
     }
     // println("touching");
     /*PVector xDiff = (posEE.copy()).sub(previousVector);
-    previousVector.set(posEE);
-    if ((xDiff.mag()) < threshold) { 
-      s.h_avatar.setDamping(700);
-      fEE.x = random(-1, 1);
-      fEE.y = random(-1, 1);
-    }*/
+     previousVector.set(posEE);
+     if ((xDiff.mag()) < threshold) { 
+     s.h_avatar.setDamping(700);
+     fEE.x = random(-1, 1);
+     fEE.y = random(-1, 1);
+     }*/
   } else {
-		//println(" NOT touching");
+    //println(" NOT touching");
     s.h_avatar.setDamping(0);
     ramp = true;
     rampStartTime = 0;
@@ -316,7 +359,7 @@ PVector perpendicularRampedForced(ClosestPointResult c)
     PVector initialForce = force.copy();
     currentRampTime = millis() - rampStartTime;
     force = (force.mult(currentRampTime * 0.003));
-    if (force.mag() >= initialForce.mag()){//} || currentRampTime > 1.5f){
+    if (force.mag() >= initialForce.mag()) {//} || currentRampTime > 1.5f){
       ramp = false;
       rampStartTime = 0;
     }
@@ -339,12 +382,12 @@ void applyAntiGuidence(PVector force)
   // y needs to be negated when going from screen to world
   fEE.add(force.x, - force.y);
   fEE.limit(2.5);
-  s.h_avatar.setDamping(600);    
+  s.h_avatar.setDamping(600);
 }
 
 void exit() {
-		PhysicsExit();
-		super.exit();
+  PhysicsExit();
+  super.exit();
 }
 
 
@@ -369,8 +412,8 @@ void update_animation(float xE, float yE) {
 
   // The text to write in
   /*textFont(f, 300);
-      fill(color(200));
-      text(String.valueOf(inputText.charAt(currentLetterIndex)), 500, 420);
+   fill(color(200));
+   text(String.valueOf(inputText.charAt(currentLetterIndex)), 500, 420);
    */
   // Highlight current text
   float[] highlightPosition = inputTextLabels[currentLetterIndex].getPosition();
@@ -378,9 +421,9 @@ void update_animation(float xE, float yE) {
 
   if (closestPoint.useThis)
   {
-			stroke(color(100, 100, 0));
-      strokeWeight(2);
-			circle(closestPoint.c.x, closestPoint.c.y, 40);
+    stroke(color(100, 100, 0));
+    strokeWeight(2);
+    circle(closestPoint.c.x, closestPoint.c.y, 40);
   }
 
   if (showFEE)
@@ -411,6 +454,30 @@ void update_animation(float xE, float yE) {
   text("Jerk: "+calculator.jerk(), 830, 625);
   /*metrics end*/
   
+  /* recording start */
+  // if writing and check that we have new data to store otherwise don't bother storing a repeated measure
+  if (writing && (calculator.speed() != currSpeed || calculator.acceleration() != currAccel || 
+  calculator.jerk() != currJerk || round(s.getAvatarPositionX()) != currXPos || 
+  round(s.getAvatarPositionY()) != currYPos || fEE.x != currXForce || fEE.y != currYForce)) {
+    // p_id>  haptic_id>  letter_id>  trial_id>  start_trial_time!!  curr_trial_time>  total_trial_time>  x_pos>  y_pos>  speed>  acceleration>  jerk>  x_force  y_force
+    currTrialTime = System.currentTimeMillis();
+    String dataToStore = ""+currentStudy.getP_id()+','+currentStudy.getHaptic_condition()+','+
+    currentLetter+','+currentStudy.getCurrPos()+','+startTrialTime+','+currTrialTime+','+
+    (currTrialTime-startTrialTime)+','+s.getAvatarPositionX()+","+s.getAvatarPositionY()+","+
+    calculator.speed()+','+calculator.acceleration()+','+calculator.jerk()+","+fEE.x+","+fEE.y+"";
+    writeFile(dataToStore);
+  }
+  /*recording end*/
+  
+  // set new current variables
+  currXPos = round(s.getAvatarPositionX());
+  currYPos = round (s.getAvatarPositionY());
+  currXForce = fEE.x;
+  currYForce = fEE.y;
+  currSpeed = calculator.speed();
+  currAccel = calculator.acceleration();
+  currJerk = calculator.jerk();
+
   // popMatrix(); // Reset the transformation matrix
 
   textFont(f, 16);                  // STEP 3 Specify font to be used
@@ -477,8 +544,12 @@ void createAlphabets() {
   //Updated code to show letter using Fisica
   //world.removeBody(alphabetPoly);
   println ("inside create Alphabets!!!");
-	if (alphabetPoly != null)
-		alphabetPoly.removeFromWorld();
+  if (alphabetPoly != null)
+    alphabetPoly.removeFromWorld();
   alphabetPoly = alphabet.create(inputText.charAt(currentLetterIndex));
+}
+
+// do something to signal the end of the study
+void doneStudy () {
   
 }
