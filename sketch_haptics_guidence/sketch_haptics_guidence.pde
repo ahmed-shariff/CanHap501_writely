@@ -21,7 +21,7 @@ boolean showFEE = true;
 /* end UI definitions **************************************************************************************************/
 
 /* writely settings ****************************************************************************************************/
-String inputText = "lll";
+String inputText = "onblers";
 int currentLetterIndex = 0;
 String currentLetter = "";
 boolean newLetter = true; // set to true when no stroke has been made and false when a stroke has been made (ultimately used to set start trial time)

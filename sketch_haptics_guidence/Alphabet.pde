@@ -20,6 +20,8 @@ public class Alphabet {
 		lineSegments = new ArrayList<Pair>();
 		println("length of the array:"+points.size());
 		for (int i = 0; i < points.size() - 1; i++) {
+      if (points.get(i) == null || points.get(i + 1) == null)
+        continue;
 			outerFShape = new FLine(positionAlphabetX + (points.get(i).x) * alphabetScale,
 															positionAlphabetY + (points.get(i).y) * alphabetScale,
 															positionAlphabetX + (points.get(i + 1).x) * alphabetScale,
