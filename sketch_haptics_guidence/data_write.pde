@@ -1,5 +1,5 @@
 /* --------------------------------------------- UPDATE UPDATE UPDATE ***** FOR EACH STUDY AND PER MACHINE ***** UPDATE UPDATE UPDATE --------------------------------------------- */
-final String RESULT_PATH = "/Users/bradleyrey/Documents/UofM/Grad_School/UBC/Project/Code/new_Code/CanHap501_writely/data/"; // path where the data will be stored
+final String RESULT_PATH = "/Users/bradleyrey/Documents/UofM/Grad_School/UBC/Project/Code/final_code/CanHap501_writely/data/"; // path where the data will be stored
 /* --------------------------------------------- UPDATE UPDATE UPDATE ***** FOR EACH STUDY AND PER MACHINE ***** UPDATE UPDATE UPDATE --------------------------------------------- */
 
 // other constants for file naming convention

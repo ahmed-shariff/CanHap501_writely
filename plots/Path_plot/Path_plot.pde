@@ -1,7 +1,7 @@
 int p_id = 0;
 int haptic_condition = 0;
-String fileName = "4-16-12";
-String path = "/Users/bradleyrey/Documents/UofM/Grad_School/UBC/Project/Code/new_Code/CanHap501_writely/data/pid_";
+String fileName = "11-12-53";
+String path = "/Users/bradleyrey/Documents/UofM/Grad_School/UBC/Project/Code/final_Code/CanHap501_writely/data/pid_";
 
 String letter = ""; // if you want a specific letter to trace
 int letterTrial = -1; // if a specific letter then denote the specific trial of that letter
@@ -91,7 +91,7 @@ void drawArrow(float cx, float cy, int len, float angle, float vector) {
 
 void loadData () {
   // load the csv into a table
-  table = loadTable(path+p_id+">hc_"+haptic_condition+"/"+fileName+".csv", "header");
+  table = loadTable(path+p_id+"_hc_"+haptic_condition+"/"+fileName+".csv", "header");
 
   // cycle through data
   for (TableRow row : table.rows()) {
