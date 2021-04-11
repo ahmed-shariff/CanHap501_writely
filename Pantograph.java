@@ -26,7 +26,7 @@ public class Pantograph extends Mechanisms{
 	
 	private float pi = 3.14159265359f;
 	private float JT11, JT12, JT21, JT22;
-	private float gain = 10.0f;
+	private float gain = 1.0f;
 	
 
 	public Pantograph(){

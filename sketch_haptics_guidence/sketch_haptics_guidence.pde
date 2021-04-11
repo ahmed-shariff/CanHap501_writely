@@ -21,7 +21,7 @@ boolean showFEE = true;
 /* end UI definitions **************************************************************************************************/
 
 /* writely settings ****************************************************************************************************/
-String inputText = "onblers";
+String inputText = "lonbers";
 int currentLetterIndex = 0;
 String currentLetter = "";
 boolean newLetter = true; // set to true when no stroke has been made and false when a stroke has been made (ultimately used to set start trial time)
@@ -369,19 +369,55 @@ PVector perpendicularRampedForced(ClosestPointResult c)
 
 void applyFullGuidence(PVector force)
 {
+  println("applying full");
   // y needs to be negated when going from screen to world
+  float modifier = log((force.mag() * 5) + 1);
+  force.mult(modifier);
   fEE.add(force.x, -force.y);
-  fEE.limit(3.5);
+  fEE.limit(4);
   s.h_avatar.setDamping(600);
 }
 
+
+long timeSineCrossingCenter = 0;
+long crossedTime = 0;
+PVector lastCrossedVactor;
+boolean crossCenter = true;
 void applyAntiGuidence(PVector force)
 {
-  PVector oppositeVector = force.copy().normalize().mult(2.5);
+	timeSineCrossingCenter = millis() - crossedTime;
+
+  PVector oppositeVector = force.copy().normalize().mult(3.5);
   force = oppositeVector.sub(force);
-  // y needs to be negated when going from screen to world
-  fEE.add(force.x, - force.y);
-  fEE.limit(2.5);
+
+	if (lastCrossedVactor == null)
+	{
+			lastCrossedVactor = force.copy();
+	}
+
+	if (PVector.dot(force, lastCrossedVactor) < 0 && crossCenter) // crossed the center line
+	{
+			lastCrossedVactor = force.copy();
+			crossedTime = millis();
+			crossCenter = false;
+	}
+
+	if (timeSineCrossingCenter < 2000)
+	{
+			if (!crossCenter && PVector.dot(force, lastCrossedVactor) >= 0) // if the force is not in the direction we want to be
+			{
+					force = PVector.mult(force, -1);
+			}
+	}
+	else
+	{
+			crossCenter = true;
+	}
+	
+	// y needs to be negated when going from screen to world
+	fEE.add(force.x, - force.y);
+	fEE.limit(3.5);
+	
   s.h_avatar.setDamping(600);
 }
 
