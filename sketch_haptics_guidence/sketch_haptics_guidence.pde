@@ -304,7 +304,6 @@ void PhysicsSimulations()
 {
   if (!enableHapticsToggle.getState())
   {
-    println("asdfasdf");
     return;
   }
 
@@ -369,7 +368,6 @@ PVector perpendicularRampedForced(ClosestPointResult c)
 
 void applyFullGuidence(PVector force)
 {
-  println("applying full");
   // y needs to be negated when going from screen to world
   float modifier = log((force.mag() * 5) + 1);
   force.mult(modifier);
@@ -483,7 +481,7 @@ void update_animation(float xE, float yE) {
   text("Pos y: "+round(yE), 400, 625);
 
   seconds = millis()/1000;
-  calculator.calculate(seconds, xE, yE);
+  calculator.calculate(seconds, xE * pixelsPerCentimeter, yE * pixelsPerCentimeter);
 
   text("Curr. speed: "+calculator.speed(), 510, 625);
   text("Acceleration: "+calculator.acceleration(), 680, 625);
