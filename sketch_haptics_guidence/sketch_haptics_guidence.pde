@@ -203,6 +203,7 @@ void PhysicsDefinitions()
 {
   //RG.init(this);
   /*Alphabet creation start**********************************/
+  currentLetterIndex = currentStudy.getCurrTrial();
   createAlphabets();
   /*Alphabet creation start***************************/
 }
@@ -246,18 +247,20 @@ void keyPressed()
     // else more trials to do
     else {
       // get next letter
-      currentLetter = currentStudy.getCurrTrial();
+      currentLetterIndex = currentStudy.getCurrTrial();
       println("Trial: "+currentStudy.getCurrPos()+"/"+currentStudy.numberOfTrials()+" -- Next Letter: "+currentLetter);
       //  ***************************************************** WE NEED TO SHOW THE NEXT LETTER HERE WHEN THEY ARE ALL CREATED *****************************************************
       drawnPoints.clear();
       newLetter = true;
-    }
-    
-    // this is still here for current version of the code. will probably remove later
-    if (currentLetterIndex < inputText.length() - 1) {
-      currentLetterIndex++;
       createAlphabets();
     }
+    
+    //// this is still here for current version of the code. will probably remove later
+    //if (currentLetterIndex < inputText.length() - 1) {
+    //  currentLetterIndex++;
+    //  println(currentLetterIndex);
+    //  createAlphabets();
+    //}
     
   } // end of next letter on enter
   
@@ -480,7 +483,8 @@ void update_animation(float xE, float yE) {
   text("Pos x: "+round(xE), 290, 625);
   text("Pos y: "+round(yE), 400, 625);
 
-  seconds = millis()/1000;
+  //seconds = millis()/1000;
+  seconds = millis()/100;
   calculator.calculate(seconds, xE * pixelsPerCentimeter, yE * pixelsPerCentimeter);
 
   text("Curr. speed: "+calculator.speed(), 510, 625);
@@ -496,7 +500,7 @@ void update_animation(float xE, float yE) {
     // p_id>  haptic_id>  letter_id>  trial_id>  start_trial_time!!  curr_trial_time>  total_trial_time>  x_pos>  y_pos>  speed>  acceleration>  jerk>  x_force  y_force
     currTrialTime = System.currentTimeMillis();
     String dataToStore = ""+currentStudy.getP_id()+','+currentStudy.getHaptic_condition()+','+
-    currentLetter+','+currentStudy.getCurrPos()+','+startTrialTime+','+currTrialTime+','+
+    currentLetterIndex+','+currentStudy.getCurrPos()+','+startTrialTime+','+currTrialTime+','+
     (currTrialTime-startTrialTime)+','+s.getAvatarPositionX()+","+s.getAvatarPositionY()+","+
     calculator.speed()+','+calculator.acceleration()+','+calculator.jerk()+","+fEE.x+","+fEE.y+"";
     writeFile(dataToStore);
@@ -585,5 +589,5 @@ void createAlphabets() {
 
 // do something to signal the end of the study
 void doneStudy () {
-  
+  instructions = "Done study, thanks!";
 }
