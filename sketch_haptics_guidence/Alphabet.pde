@@ -9,8 +9,12 @@ public class Alphabet {
 	ArrayList<FLine> polys;
 	ArrayList<Pair> lineSegments;
 	FLine outerFShape;
+  ArrayList<boolean[]> passedPoints = new ArrayList<boolean[]>();
+  public int totalPassablePoints = 0; // use getter?
+  public int passedPointsCount = 0; //use getter?
+  float lineSubdivisionSize = 2;
 
-		float temp1, temp2;
+	float temp1, temp2;
 		
  /**
   * Constructor
@@ -44,10 +48,16 @@ public class Alphabet {
 			world.add(outerFShape);
 			polys.add(outerFShape);
 
-			lineSegments.add(new Pair(new PVector((positionAlphabetX + (points.get(i).x) * alphabetScale) * pixelsPerCentimeter,
-																						(positionAlphabetY + (points.get(i).y) * alphabetScale) * pixelsPerCentimeter),
-																new PVector((positionAlphabetX + (points.get(i + 1).x) * alphabetScale) * pixelsPerCentimeter,
-																						(positionAlphabetY + (points.get(i + 1).y) * alphabetScale) * pixelsPerCentimeter)));
+      PVector p1 = new PVector((positionAlphabetX + (points.get(i).x) * alphabetScale) * pixelsPerCentimeter,
+                               (positionAlphabetY + (points.get(i).y) * alphabetScale) * pixelsPerCentimeter);
+      PVector p2 = new PVector((positionAlphabetX + (points.get(i + 1).x) * alphabetScale) * pixelsPerCentimeter,
+                               (positionAlphabetY + (points.get(i + 1).y) * alphabetScale) * pixelsPerCentimeter);
+			lineSegments.add(new Pair(p1, p2));
+
+      int subPoints = ceil(PVector.sub(p1, p2).mag() / lineSubdivisionSize);
+      boolean[] _passedPoints = new boolean[subPoints];
+      totalPassablePoints += _passedPoints.length;
+      passedPoints.add(_passedPoints);
 		}
 	}
 
@@ -72,11 +82,12 @@ public class Alphabet {
 	{
 		PVector p = new PVector(x, y);
 		
-		float a, b, c, d, currentA, currentB, currentC, denomSquared, currentDenomSquared, currendD = 10000;
+		float a, b, c, d, currentA, currentB, currentC, denomSquared, currentDenomSquared, currendD = 10000, currentAC=0;
 		a = b = c = currentA = currentB = currentC = currentDenomSquared = 0;
 		Pair pair;
-		PVector ab, ab_n, ac, ac_p, cVector=null, currentCVector = null, currentPerpendicularVector=null;
+		PVector ab=null, ab_n, ac=null, ac_p, cVector=null, currentCVector = null, currentPerpendicularVector=null;
 		FLine closestLine = polys.get(0);
+    int closestLineIndex = -1;
 
 		for (int i = 0; i < polys.size(); i++)
 		{
@@ -110,11 +121,24 @@ public class Alphabet {
 					currentPerpendicularVector = PVector.sub(p, cVector); // the perpendicular vector from the line to p
 					// currentCVector = PVector.add(pair.p1, ac);
 					currendD = d;
+          closestLineIndex = i;
+          currentAC = ac.mag() / ab.mag();
 				}
 			}
 		}
 		// closestLine.setStrokeColor(color(0, 0, 0));
-		return new ClosestPointResult(currentCVector, currentPerpendicularVector);
+    ClosestPointResult result = new ClosestPointResult(currentCVector, currentPerpendicularVector);
+    if (result.useThis)
+    {
+        boolean[] _passedPoints = passedPoints.get(closestLineIndex);
+        int _passedPointIndex = floor(currentAC * _passedPoints.length); // the subdivision of the line on which the closest point is
+        if (!_passedPoints[_passedPointIndex]) // if this segment is not visited before
+        {
+            passedPointsCount += 1;
+            _passedPoints[_passedPointIndex] = true;
+        }
+    }
+		return result;
 	}
 
 	private class Pair

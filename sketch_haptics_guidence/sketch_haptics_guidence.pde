@@ -469,6 +469,7 @@ void update_animation(float xE, float yE) {
     float y = 220;
     circle(x, y, 150);
     line(x, y, x + fEE.x * pixelsPerCentimeter, y - fEE.y * pixelsPerCentimeter);
+    println(alphabetPoly.passedPointsCount + "  " + alphabetPoly.totalPassablePoints);
   }
 
   stroke(baseColor);
