@@ -71,6 +71,7 @@ PVector previousVector = new PVector(0, 0);
 /*Screen Capture Start*/
 PImage screenCapture;
 Boolean colorChanged = Boolean.TRUE;
+int loadingTime = 0;
 /*end of screen capture*/
 
 
@@ -329,7 +330,8 @@ void drawLoop() {
 
 public void SaveImage (int theValue) {
    colorChanged = alphabetPoly.turnLightColor();
-   captureImage();
+   loadingTime = millis()+2200;
+   
   //colorChanged = alphabetPoly.turnOriginalColor();
   //alphabetPoly.saveImage();
 }
