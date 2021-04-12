@@ -10,8 +10,9 @@ public class Alphabet {
 	ArrayList<Pair> lineSegments;
 	FLine outerFShape;
   ArrayList<boolean[]> passedPoints = new ArrayList<boolean[]>();
-  public int totalPassablePoints = 0; // use getter?
-  public int passedPointsCount = 0; //use getter?
+  int totalPassablePoints = 1;
+  int passedPointsCount = 0;
+  float currentD;
   float lineSubdivisionSize = 2;
 
 	float temp1, temp2;
@@ -137,9 +138,16 @@ public class Alphabet {
             passedPointsCount += 1;
             _passedPoints[_passedPointIndex] = true;
         }
+        this.currentD = currendD;
     }
 		return result;
 	}
+
+  public AlphabetMetrics getMetrics()
+  {
+      float val = (float)passedPointsCount/(float)totalPassablePoints;
+      return new AlphabetMetrics(val, currentD);
+  }
 
 	private class Pair
 	{
@@ -165,4 +173,16 @@ public class ClosestPointResult
 				this.perpendicularVector = perpendicularVector;
         this.useThis = (c != null && (c.x != 0 || c.y != 0));
 		}
+}
+
+public class AlphabetMetrics
+{
+    public float completedPercentage;
+    public float currentD;
+
+    public AlphabetMetrics(float completedPercentage, float currentD)
+    {
+        this.completedPercentage = completedPercentage;
+        this.currentD = currentD;
+    }
 }

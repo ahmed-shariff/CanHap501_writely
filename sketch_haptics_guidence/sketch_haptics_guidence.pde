@@ -54,10 +54,11 @@ Study currentStudy = new Study();
 /* alphabet settings ****************************************************************************************************/
 AlphabetCreator alphabet = new AlphabetCreator();
 Alphabet alphabetPoly;
+AlphabetMetrics alphabetMetrics;
 /* end of alphabet settings ****************************************************************************************************/
 
 /* metrics settings ****************************************************************************************************/
-int seconds = 0;
+float seconds = 0;
 Calculator calculator = new Calculator();
 /* metrics end ****************************************************************************************************/
 
@@ -74,7 +75,7 @@ PVector previousVector = new PVector(0, 0);
 void setup() {
   /* screen size definition */
   size(1000, 700);
-
+  calculator.reset();
   /* GUI setup */
   smooth();
   cp5 = new ControlP5(this);
@@ -236,6 +237,7 @@ void keyPressed()
   
   // else if they are done writing the letter then move to the next letter in the study
   else if (key == '\n') {
+    calculator.reset();
     // iterate trial number
     currentStudy.nextTrial();
     // if we are done the study
@@ -440,7 +442,7 @@ void update_animation(float xE, float yE) {
   stroke(baseColor);
   strokeWeight(1.5);
   rect(270, 120, 700, 520); // haply space
-  rect(15, 290, 250, 350); // control panel
+  rect(15, 290, 250, 390); // control panel
   rect(15, 25, 250, 260); // instructions
 
   PFont f = createFont("Arial", 16);
@@ -469,8 +471,13 @@ void update_animation(float xE, float yE) {
     float y = 220;
     circle(x, y, 150);
     line(x, y, x + fEE.x * pixelsPerCentimeter, y - fEE.y * pixelsPerCentimeter);
-    println(alphabetPoly.passedPointsCount + "  " + alphabetPoly.totalPassablePoints);
   }
+
+  alphabetMetrics = alphabetPoly.getMetrics();
+
+  seconds = millis()/1000;
+  // seconds = millis()/100;
+  calculator.calculate(seconds, xE * pixelsPerCentimeter, yE * pixelsPerCentimeter, alphabetMetrics.currentD, alphabetMetrics.completedPercentage);
 
   stroke(baseColor);
 
@@ -480,17 +487,14 @@ void update_animation(float xE, float yE) {
   // Not rendering the joints of haply
 
   /*User writing metrics details*/
-  rect(270, 600, 700, 40);
+  rect(270, 600, 700, 80);
   text("Pos x: "+round(xE), 290, 625);
   text("Pos y: "+round(yE), 400, 625);
+  text("score: " + calculator.score(), 500, 625);
 
-  //seconds = millis()/1000;
-  seconds = millis()/100;
-  calculator.calculate(seconds, xE * pixelsPerCentimeter, yE * pixelsPerCentimeter);
-
-  text("Curr. speed: "+calculator.speed(), 510, 625);
-  text("Acceleration: "+calculator.acceleration(), 680, 625);
-  text("Jerk: "+calculator.jerk(), 830, 625);
+  text("Curr. speed: "+calculator.speed(), 310, 665);
+  text("Acceleration: "+calculator.acceleration(), 580, 665);
+  text("Jerk: "+calculator.jerk(), 830, 665);
   /*metrics end*/
   
   /* recording start */
