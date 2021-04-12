@@ -15,6 +15,7 @@ boolean EnablePath = false;
 /* UI definitions ******************************************************************************************************/
 Textlabel[] inputTextLabels;
 Toggle enableHapticsToggle, pressureSensorToggle;
+Button saveButton;
 RadioButton learningExperienceRadio, hapticExperienceRadio;
 String instructions = "Instructions:\nPress and hold the spacebar to write a stroke. You can repeatedly do this for as many strokes as you need to write the character. When done the letter, press the right arrow to move to the next letter.";
 boolean showFEE = true;
@@ -67,6 +68,11 @@ float threshold = 0.02;
 PVector previousVector = new PVector(0, 0);
 /* End of Initialization of virtual tool */
 
+/*Screen Capture Start*/
+PImage screenCapture;
+Boolean colorChanged = Boolean.TRUE;
+/*end of screen capture*/
+
 
 /* end definitions *****************************************************************************************************/
 
@@ -94,22 +100,38 @@ void setup() {
   cp5.addTextlabel("controlPanel")
     .setText("Control Panel")
     //.setMultiline(true)
-    .setPosition(60, 300)
+    .setPosition(69, 485)
     .setColorValue(color(0, 0, 0))
     .setFont(createFont("Georgia", 20))
     ;
+    
+  // save button
+  cp5.addTextlabel("saveImage")
+    .setText("Save Image")
+    //.setMultiline(true)
+    .setPosition(20, 518)
+    .setColorValue(color(0, 0, 0))
+    .setFont(createFont("Georgia", 16))
+    ;
+
+  saveButton = cp5.addButton("Save")
+    .setPosition(211, 518)
+    .setSize(50, 25)
+    .setValue(0)
+    ;
+    
 
   // enable haptics
   cp5.addTextlabel("enableHapticsLabel")
     .setText("Enable Haptics")
     //.setMultiline(true)
-    .setPosition(20, 350)
+    .setPosition(20, 560)
     .setColorValue(color(0, 0, 0))
     .setFont(createFont("Georgia", 16))
     ;
 
   enableHapticsToggle = cp5.addToggle("enableHaptics")
-    .setPosition(210, 350)
+    .setPosition(210, 560)
     .setSize(50, 20)
     .setColorBackground(color(200))
     .setColorActive(color(0, 255, 0))
@@ -118,7 +140,7 @@ void setup() {
     ;
 
   // pressure sensor
-  cp5.addTextlabel("pressureSensorLabel")
+  /*cp5.addTextlabel("pressureSensorLabel")
     .setText("Pressure Sensor")
     //.setMultiline(true)
     .setPosition(20, 400)
@@ -133,10 +155,10 @@ void setup() {
     .setColorActive(color(0, 255, 0))
     .setValue(true)
     .setMode(ControlP5.SWITCH)
-    ;
+    ;*/
 
   // learning experience
-  cp5.addTextlabel("learningExperienceLabel")
+  /*cp5.addTextlabel("learningExperienceLabel")
     .setText("Learning Experience")
     //.setMultiline(true)
     .setPosition(20, 450)
@@ -161,24 +183,24 @@ void setup() {
     t.getCaptionLabel().setFont(createFont("Georgia", 10));
   }
 
-  learningExperienceRadio.getItem(0).setValue(true);
+  learningExperienceRadio.getItem(0).setValue(true);*/
 
   // Haptic experience
   cp5.addTextlabel("hapticExperienceLabel")
     .setText("Haptic Experience")
     //.setMultiline(true)
-    .setPosition(20, 550)
+    .setPosition(20, 600)
     .setColorValue(color(0, 0, 0))
     .setFont(createFont("Georgia", 16))
     ;
 
   hapticExperienceRadio = cp5.addRadioButton("hapticExperience")
-    .setPosition(20, 580)
+    .setPosition(25, 610)
     .setSize(40, 20)
     .setColorForeground(color(100))
     .setColorActive(color(0, 255, 100))
     .setColorLabel(color(0))
-    .setItemsPerRow(2)
+    .setItemsPerRow(1)
     .setSpacingColumn(90)
     .addItem("Partial", 1)
     .addItem("Full", 2)
@@ -304,6 +326,24 @@ void drawLoop() {
 
 
 /* helper functions section, place helper functions here ***************************************************************/
+
+public void Save(int theValue) {
+   colorChanged = alphabetPoly.turnLightColor();
+  //colorChanged = alphabetPoly.turnOriginalColor();
+  
+  //alphabetPoly.saveImage();
+  
+}
+
+
+public void captureImage(){
+    screenCapture  =get(270, 120, 700, 480);
+    screenCapture.save("../data/"+nf(month(), 2) + nf(day(), 2) +
+      "-" + nf(hour(), 2) + nf(minute(), 2) + nf(second(), 2)+".jpg");
+    println("a button event from colorA: ");
+}
+
+
 
 void PhysicsSimulations()
 {
@@ -441,9 +481,10 @@ void update_animation(float xE, float yE) {
   noFill();
   stroke(baseColor);
   strokeWeight(1.5);
+  //rect(270, 120, 700, 480);
   rect(270, 120, 700, 520); // haply space
-  rect(15, 290, 250, 390); // control panel
-  rect(15, 25, 250, 260); // instructions
+  rect(15, 470, 250, 214); // control panel
+  rect(15, 25, 250, 440); // instructions
 
   PFont f = createFont("Arial", 16);
   textFont(f, 16);
