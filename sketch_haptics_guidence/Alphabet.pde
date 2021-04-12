@@ -65,7 +65,7 @@ public class Alphabet {
   public Boolean turnLightColor(){
     for(int j=0; j<polys.size(); j++){
       polys.get(j).setFill(255, 0, 0);
-      polys.get(j).setStrokeColor(color(228, 228, 228, 100));
+      polys.get(j).setStrokeColor(color(254, 254, 254, 1));
     }
     return Boolean.TRUE;
   }

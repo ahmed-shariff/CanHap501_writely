@@ -140,6 +140,12 @@ void PhysicsSetup(){
 
 /* draw section ********************************************************************************************************/
 void draw(){
+
+     if(millis()>loadingTime && colorChanged){
+       colorChanged = Boolean.FALSE;
+       captureImage();
+     }
+  
 		/* put graphical code here, runs repeatedly at defined framerate in setup, else default at 60fps: */
 		if(renderingForce == false){
 				background(255);
