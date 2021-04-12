@@ -14,7 +14,7 @@ public class Alphabet {
   int passedPointsCount = 0;
   float currentD;
   float lineSubdivisionSize = 2;
-
+  
 	float temp1, temp2;
 		
  /**
@@ -61,6 +61,21 @@ public class Alphabet {
       passedPoints.add(_passedPoints);
 		}
 	}
+
+  public Boolean turnLightColor(){
+    for(int j=0; j<polys.size(); j++){
+      polys.get(j).setFill(255, 0, 0);
+      polys.get(j).setStrokeColor(color(228, 228, 228, 100));
+    }
+    return Boolean.TRUE;
+  }
+  
+  public void turnOriginalColor(){
+    for(int j=0; j<polys.size(); j++){
+      polys.get(j).setFill(255, 0, 0);
+      polys.get(j).setStrokeColor(color(255, 0, 0, 100));
+    }
+  }
 
 	public void removeFromWorld(){
 		for (int i = 0; i < polys.size(); i++)
