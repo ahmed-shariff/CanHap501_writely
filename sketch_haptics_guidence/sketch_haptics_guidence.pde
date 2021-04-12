@@ -114,9 +114,9 @@ void setup() {
     .setFont(createFont("Georgia", 16))
     ;
 
-  saveButton = cp5.addButton("Save")
-    .setPosition(211, 518)
-    .setSize(50, 25)
+  saveButton = cp5.addButton("SaveImage")
+    .setPosition(200, 518)
+    .setSize(60, 25)
     .setValue(0)
     ;
     
@@ -327,12 +327,11 @@ void drawLoop() {
 
 /* helper functions section, place helper functions here ***************************************************************/
 
-public void Save(int theValue) {
+public void SaveImage (int theValue) {
    colorChanged = alphabetPoly.turnLightColor();
+   captureImage();
   //colorChanged = alphabetPoly.turnOriginalColor();
-  
   //alphabetPoly.saveImage();
-  
 }
 
 
@@ -340,7 +339,7 @@ public void captureImage(){
     screenCapture  =get(270, 120, 700, 480);
     screenCapture.save("../data/"+nf(month(), 2) + nf(day(), 2) +
       "-" + nf(hour(), 2) + nf(minute(), 2) + nf(second(), 2)+".jpg");
-    println("a button event from colorA: ");
+    println("#inside captureImage function ");
 }
 
 
