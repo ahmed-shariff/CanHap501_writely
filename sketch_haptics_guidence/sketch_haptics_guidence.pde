@@ -248,6 +248,7 @@ void pressureSensor(boolean flag)
 
 /* Keyboard inputs *****************************************************************************************************/
 
+boolean removedColorOnText = false;
 void keyPressed()
 {
   if (key == ' ') {
@@ -261,6 +262,14 @@ void keyPressed()
   // else if they are done writing the letter then move to the next letter in the study
   else if (key == '\n') {
     calculator.reset();
+    if (!removedColorOnText)
+    {
+        SaveImage(1);
+        removedColorOnText = true;
+        return;
+    }
+    captureImage();
+    removedColorOnText = false;
     // iterate trial number
     currentStudy.nextTrial();
     // if we are done the study
@@ -340,7 +349,7 @@ public void SaveImage (int theValue) {
 public void captureImage(){
     screenCapture  =get(270, 120, 700, 480);
     screenCapture.save("../data/"+nf(month(), 2) + nf(day(), 2) +
-      "-" + nf(hour(), 2) + nf(minute(), 2) + nf(second(), 2)+".jpg");
+                       "-" + nf(hour(), 2) + nf(minute(), 2) + nf(second(), 2)+"_trial_"+currentStudy.getCurrPos()+ ".jpg");
     println("#inside captureImage function ");
 }
 
