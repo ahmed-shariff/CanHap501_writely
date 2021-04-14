@@ -357,10 +357,7 @@ public void captureImage(){
 
 void PhysicsSimulations()
 {
-  if (!enableHapticsToggle.getState())
-  {
-    return;
-  }
+  closestPoint = new ClosestPointResult(null, null);
 
   if (alphabetPoly.isTouchedByBody(s.h_avatar)) {
     // closestPoint = calcualteClosestPoint(xE, yE);
@@ -368,6 +365,11 @@ void PhysicsSimulations()
     float screenYE = s.getAvatarPositionY() * pixelsPerCentimeter;
     closestPoint = alphabetPoly.closestPoint(screenXE, screenYE);
 
+    if (!enableHapticsToggle.getState())
+    {
+        return;
+    }
+    
     if (ramp && rampStartTime == 0)
       rampStartTime = millis();
 
@@ -509,11 +511,12 @@ void update_animation(float xE, float yE) {
   float[] highlightPosition = inputTextLabels[currentLetterIndex].getPosition();
   circle(highlightPosition[0] + 10, highlightPosition[1] + 14, 30);
 
-  if (closestPoint.useThis)
+  ClosestPointResult lastClosestPoint = closestPoint;
+  if (lastClosestPoint.useThis && lastClosestPoint.c != null)
   {
     stroke(color(100, 100, 0));
     strokeWeight(2);
-    circle(closestPoint.c.x, closestPoint.c.y, 40);
+    circle(lastClosestPoint.c.x, lastClosestPoint.c.y, 40);
   }
 
   if (showFEE)
@@ -558,7 +561,16 @@ void update_animation(float xE, float yE) {
     String dataToStore = ""+currentStudy.getP_id()+','+currentStudy.getHaptic_condition()+','+
     currentLetterIndex+','+currentStudy.getCurrPos()+','+startTrialTime+','+currTrialTime+','+
     (currTrialTime-startTrialTime)+','+s.getAvatarPositionX()+","+s.getAvatarPositionY()+","+
-    calculator.speed()+','+calculator.acceleration()+','+calculator.jerk()+","+fEE.x+","+fEE.y+"";
+    calculator.speed()+','+calculator.acceleration()+','+calculator.jerk()+","+fEE.x+","+fEE.y+",";
+
+    if (lastClosestPoint.useThis && lastClosestPoint.c != null)
+    {
+        dataToStore += lastClosestPoint.c.x + "," + lastClosestPoint.c.y + "," + lastClosestPoint.d + "";
+    }
+    else{
+        dataToStore += "null,null,null" + "";
+    }
+    
     writeFile(dataToStore);
   }
   /*recording end*/
