@@ -182,11 +182,14 @@ public class ClosestPointResult
 		public PVector c;
 		public PVector perpendicularVector;
     public boolean useThis;
+    public float d;
 		
 		public ClosestPointResult (PVector c, PVector perpendicularVector) {
 				this.c = c;
 				this.perpendicularVector = perpendicularVector;
         this.useThis = (c != null && (c.x != 0 || c.y != 0));
+        if (this.useThis)
+            this.d = this.perpendicularVector.mag();
 		}
 }
 

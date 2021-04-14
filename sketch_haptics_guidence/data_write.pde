@@ -51,7 +51,7 @@ void writeFile(String message){
     // jerk - current end effector jerk
     // x_force - force in the x direction on the end effector
     // y_force - force in the y direction on the end effector
-    output.println("p_id,haptic_id,letter_id,trial_id,start_trial_time,curr_trial_time,total_trial_time,x_pos,y_pos,speed,acceleration,jerk,x_force,y_force");
+    output.println("p_id,haptic_id,letter_id,trial_id,start_trial_time,curr_trial_time,total_trial_time,x_pos,y_pos,speed,acceleration,jerk,x_force,y_force,closest_point_x, closest_point_y,dist_to_closest_point");
   }
   
   //// append new message
