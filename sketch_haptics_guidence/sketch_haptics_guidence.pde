@@ -18,7 +18,7 @@ Toggle enableHapticsToggle, pressureSensorToggle;
 Button saveButton;
 RadioButton learningExperienceRadio, hapticExperienceRadio;
 String instructions = "Instructions:\nPress and hold the spacebar to write a stroke. You can repeatedly do this for as many strokes as you need to write the character. When done the letter, press the right arrow to move to the next letter.";
-boolean showFEE = true;
+boolean showFEE = false;
 /* end UI definitions **************************************************************************************************/
 
 /* writely settings ****************************************************************************************************/
@@ -382,9 +382,11 @@ void PhysicsSimulations()
       // .addItem("Disturbance", 4)
 
       if (hapticExperienceRadio.getState(1)) {
-        applyFullGuidence(perpendicularRampedForced(closestPoint));
+        //applyFullGuidence(perpendicularRampedForced(closestPoint));
+        applyFullGuidence(closestPoint.perpendicularVector.copy().limit(10f).mult(0.5f));
       } else if (hapticExperienceRadio.getState(2))
-        applyAntiGuidence(perpendicularRampedForced(closestPoint));
+        //applyAntiGuidence(perpendicularRampedForced(closestPoint));
+        applyAntiGuidence(closestPoint.perpendicularVector.copy().limit(10f).mult(0.5f));
     }
     // println("touching");
     /*PVector xDiff = (posEE.copy()).sub(previousVector);
